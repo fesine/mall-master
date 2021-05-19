@@ -1,0 +1,4 @@
+mybatis:
+  configuration:
+    # 控制台日志配置
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
