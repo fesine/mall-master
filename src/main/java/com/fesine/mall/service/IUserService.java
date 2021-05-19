@@ -1,6 +1,7 @@
 package com.fesine.mall.service;
 
 import com.fesine.mall.pojo.User;
+import com.fesine.mall.vo.ResponseVo;
 
 /**
  * @description: 用户业务接口
@@ -16,7 +17,7 @@ public interface IUserService {
      * 注册
      * @param user
      */
-    void register(User user);
+    ResponseVo register(User user);
 
 
 }

@@ -3,12 +3,15 @@ package com.fesine.mall.service.impl;
 import com.fesine.mall.dao.UserMapper;
 import com.fesine.mall.pojo.User;
 import com.fesine.mall.service.IUserService;
+import com.fesine.mall.vo.ResponseVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+
+import static com.fesine.mall.enums.ResponseEnum.*;
 
 /**
  * @description: 类描述
@@ -30,16 +33,16 @@ public class UserServiceImpl implements IUserService {
      * @param user
      */
     @Override
-    public void register(User user) {
+    public ResponseVo register(User user) {
         //username不能重复
         int countByUsername = userMapper.countByUsername(user.getUsername());
         if (countByUsername > 0) {
-            throw new RuntimeException("该用户已经注册");
+            return ResponseVo.error(USERNAME_EXIST);
         }
         //email不能重复
         int countByEmail = userMapper.countByEmail(user.getEmail());
         if (countByEmail > 0) {
-            throw new RuntimeException("该邮箱已经注册");
+            return ResponseVo.error(EMAIL_EXIST);
         }
         //MD5摘要算法（Spring自带）
         String s = DigestUtils.md5DigestAsHex(user.getPassword().getBytes(StandardCharsets.UTF_8));
@@ -47,7 +50,10 @@ public class UserServiceImpl implements IUserService {
         //写入数据库
         int i = userMapper.insertSelective(user);
         if (i == 0) {
-            throw new RuntimeException("注册失败");
+            return ResponseVo.error(ERROR);
         }
+        return ResponseVo.success("注册成功");
     }
+
+
 }

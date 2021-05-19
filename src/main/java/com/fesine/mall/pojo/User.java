@@ -34,7 +34,10 @@ public class User {
 
     private Date updateTime;
 
-    public User(String username, String password, String email,Integer role) {
+    public User() {
+    }
+
+    public User(String username, String password, String email, Integer role) {
         this.username = username;
         this.password = password;
         this.email = email;

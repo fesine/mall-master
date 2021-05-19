@@ -3,6 +3,7 @@ package com.fesine.mall.vo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fesine.mall.enums.ResponseEnum;
 import lombok.Data;
+import org.springframework.validation.BindingResult;
 
 /**
  * @description: 响应数据实体
@@ -37,5 +38,14 @@ public class ResponseVo<T> {
 
     public static <T> ResponseVo<T> error(ResponseEnum responseEnum) {
         return new ResponseVo<>(responseEnum.getCode(), responseEnum.getDesc());
+    }
+
+    public static <T> ResponseVo<T> error(ResponseEnum responseEnum,String msg) {
+        return new ResponseVo<>(responseEnum.getCode(), msg);
+    }
+
+    public static <T> ResponseVo<T> error(ResponseEnum responseEnum, BindingResult bindingResult) {
+        return new ResponseVo<>(responseEnum.getCode(), bindingResult.getFieldError().getField() + " "
+                + bindingResult.getFieldError().getDefaultMessage());
     }
 }
