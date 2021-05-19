@@ -19,5 +19,13 @@ public interface IUserService {
      */
     ResponseVo register(User user);
 
+    /**
+     * 登录
+     * @param username
+     * @param password
+     * @return
+     */
+    ResponseVo login(String username, String password);
+
 
 }

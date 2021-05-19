@@ -52,7 +52,24 @@ public class UserServiceImpl implements IUserService {
         if (i == 0) {
             return ResponseVo.error(ERROR);
         }
-        return ResponseVo.success("注册成功");
+        return ResponseVo.successByMsg("注册成功");
+    }
+
+    @Override
+    public ResponseVo login(String username, String password) {
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            //用户名不存在
+            return ResponseVo.error(USERNAME_OR_PASSWORD_ERROR);
+        }
+        String s = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+        if (!user.getPassword().equalsIgnoreCase(s)) {
+            //密码错误
+            return ResponseVo.error(USERNAME_OR_PASSWORD_ERROR);
+        }
+        //取消返回密码
+        user.setPassword("");
+        return ResponseVo.success(user);
     }
 
 

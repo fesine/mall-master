@@ -1,7 +1,8 @@
 package com.fesine.mall.controller;
 
 import com.fesine.mall.enums.RoleEnum;
-import com.fesine.mall.form.UserForm;
+import com.fesine.mall.form.UserLoginForm;
+import com.fesine.mall.form.UserRegisterForm;
 import com.fesine.mall.pojo.User;
 import com.fesine.mall.service.IUserService;
 import com.fesine.mall.vo.ResponseVo;
@@ -9,13 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import static com.fesine.mall.constants.MallConstants.CURRENT_USER;
+import static com.fesine.mall.enums.ResponseEnum.NEED_LOGIN;
 import static com.fesine.mall.enums.ResponseEnum.PARAM_ERROR;
 
 /**
@@ -35,7 +36,8 @@ public class UserController {
     private IUserService userService;
 
     @PostMapping("/register")
-    public ResponseVo register(@Valid @RequestBody UserForm userForm, BindingResult bindingResult){
+    public ResponseVo register(@Valid @RequestBody UserRegisterForm userForm,
+                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("注册提交参数有误,{} {}", bindingResult.getFieldError().getField(),
                     bindingResult.getFieldError().getDefaultMessage());
@@ -47,5 +49,42 @@ public class UserController {
         user.setRole(RoleEnum.CUSTOMER.getCode());
 
         return userService.register(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseVo<User> login(@Valid @RequestBody UserLoginForm userForm
+            , BindingResult bindingResult
+            , HttpSession session) {
+        if (bindingResult.hasErrors()) {
+            return ResponseVo.error(PARAM_ERROR, bindingResult);
+        }
+        ResponseVo<User> responseVo = userService.login(userForm.getUsername(),
+                userForm.getPassword());
+        session.setAttribute(CURRENT_USER, responseVo.getData());
+        return responseVo;
+    }
+
+    /**
+     * session保存在内存内，重启后失效，改进版token+redis
+     * @param session
+     * @return
+     */
+    @GetMapping("")
+    public ResponseVo<User> userInfo(HttpSession session) {
+        User user = (User) session.getAttribute(CURRENT_USER);
+        if (user == null) {
+            return ResponseVo.error(NEED_LOGIN);
+        }
+        return ResponseVo.success(user);
+    }
+
+    @PostMapping("/logout")
+    public ResponseVo<User> logout(HttpSession session) {
+        User user = (User) session.getAttribute(CURRENT_USER);
+        if (user == null) {
+            return ResponseVo.error(NEED_LOGIN);
+        }
+        session.removeAttribute(CURRENT_USER);
+        return ResponseVo.success();
     }
 }

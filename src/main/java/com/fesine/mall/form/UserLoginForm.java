@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 /**
- * @description: 用户表单
+ * @description: 用户登录表单
  * @author: fesine
  * @createTime:2021/5/19
  * @update:修改内容
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
  * @updateTime:2021/5/19
  */
 @Data
-public class UserForm {
+public class UserLoginForm {
 
     //@NotNull 用于Integer、对象
     //@NotBlank 用于string
@@ -24,6 +24,4 @@ public class UserForm {
     @NotBlank
     private String password;
 
-    @NotBlank
-    private String email;
 }
