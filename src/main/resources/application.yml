@@ -18,3 +18,13 @@ mybatis:
 logging:
   pattern:
     console: "[%thread] %-5level %logger{36} - %msg%n"
+
+
+# 不拦截配置
+interceptorconfig:
+  path:
+    exclude:
+      - /user/register
+      - /user/login
+      - /categories
+

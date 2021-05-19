@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import static com.fesine.mall.constants.MallConstants.CURRENT_USER;
-import static com.fesine.mall.enums.ResponseEnum.NEED_LOGIN;
 import static com.fesine.mall.enums.ResponseEnum.PARAM_ERROR;
 
 /**
@@ -72,18 +71,11 @@ public class UserController {
     @GetMapping("")
     public ResponseVo<User> userInfo(HttpSession session) {
         User user = (User) session.getAttribute(CURRENT_USER);
-        if (user == null) {
-            return ResponseVo.error(NEED_LOGIN);
-        }
         return ResponseVo.success(user);
     }
 
     @PostMapping("/logout")
     public ResponseVo<User> logout(HttpSession session) {
-        User user = (User) session.getAttribute(CURRENT_USER);
-        if (user == null) {
-            return ResponseVo.error(NEED_LOGIN);
-        }
         session.removeAttribute(CURRENT_USER);
         return ResponseVo.success();
     }

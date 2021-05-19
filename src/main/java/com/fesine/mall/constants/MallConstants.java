@@ -11,4 +11,6 @@ package com.fesine.mall.constants;
 public class MallConstants {
 
     public static final String CURRENT_USER = "currentUser";
+
+    public static final Integer ROOT_PARENT_ID = 0;
 }
