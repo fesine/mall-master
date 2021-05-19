@@ -27,4 +27,6 @@ interceptorconfig:
       - /user/register
       - /user/login
       - /categories
+      - /products
+      - /products/*
 

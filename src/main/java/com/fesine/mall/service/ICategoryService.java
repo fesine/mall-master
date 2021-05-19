@@ -4,6 +4,7 @@ import com.fesine.mall.vo.CategoryVo;
 import com.fesine.mall.vo.ResponseVo;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @description: 类描述
@@ -15,5 +16,18 @@ import java.util.List;
  */
 public interface ICategoryService {
 
+    /**
+     * 查询所有类别
+     * @return
+     */
     ResponseVo<List<CategoryVo>> selectAll();
+
+    /**
+     * 查询所有的子类别
+     * @param id
+     * @param resultSet
+     */
+    void findSubCategoryId(Integer id, Set<Integer> resultSet);
+
+
 }
