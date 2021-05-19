@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fesine.mall.constants.MallConstants.ROOT_PARENT_ID;
 
@@ -32,15 +34,48 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public ResponseVo<List<CategoryVo>> selectAll() {
-        List<CategoryVo> voList = new ArrayList<>();
         List<Category> categoryList = categoryMapper.selectAll();
-        for (Category category : categoryList) {
-            if (ROOT_PARENT_ID.equals(category.getParentId())) {
-                CategoryVo categoryVo = new CategoryVo();
-                BeanUtils.copyProperties(category, categoryVo);
-                voList.add(categoryVo);
+        //for (Category category : categoryList) {
+        //    if (ROOT_PARENT_ID.equals(category.getParentId())) {
+        //        CategoryVo categoryVo = new CategoryVo();
+        //        BeanUtils.copyProperties(category, categoryVo);
+        //        voList.add(categoryVo);
+        //    }
+        //}
+        //使用lambada表达式实现
+        List<CategoryVo> voList =
+                categoryList.stream().filter(e -> e.getParentId().equals(ROOT_PARENT_ID))
+                .map(this::category2CategoryVo)
+                .sorted(Comparator.comparing(CategoryVo::getSortOrder).reversed())
+                .collect(Collectors.toList());
+
+        //查询子类别
+        findSubCategory(categoryList, voList);
+        return ResponseVo.success(voList);
+    }
+
+    /**
+     * 查询子类别
+     * @param categoryList 全部类别列表
+     * @param voList 父级类别列表
+     */
+    private void findSubCategory(List<Category> categoryList, List<CategoryVo> voList){
+        for (CategoryVo categoryVo : voList) {
+            List<CategoryVo> subCategoryVoList = new ArrayList<>();
+            categoryVo.setSubCategories(subCategoryVoList);
+            for (Category category : categoryList) {
+                if (categoryVo.getId().equals(category.getParentId())) {
+                    subCategoryVoList.add(category2CategoryVo(category));
+                }
+                subCategoryVoList.sort(Comparator.comparing(CategoryVo::getSortOrder).reversed());
+                findSubCategory(categoryList,subCategoryVoList);
             }
         }
-        return ResponseVo.success(voList);
+    }
+
+    private CategoryVo category2CategoryVo(Category category) {
+        CategoryVo categoryVo = new CategoryVo();
+        BeanUtils.copyProperties(category, categoryVo);
+        return categoryVo;
     }
 }
