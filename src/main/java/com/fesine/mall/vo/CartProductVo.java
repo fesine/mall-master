@@ -1,5 +1,6 @@
 package com.fesine.mall.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  * @updateTime:2021/5/20
  */
 @Data
+@AllArgsConstructor
 public class CartProductVo {
 
     private Integer productId;
