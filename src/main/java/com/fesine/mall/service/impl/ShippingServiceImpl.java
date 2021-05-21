@@ -1,0 +1,95 @@
+package com.fesine.mall.service.impl;
+
+import com.fesine.mall.dao.ShippingMapper;
+import com.fesine.mall.enums.ResponseEnum;
+import com.fesine.mall.form.ShippingForm;
+import com.fesine.mall.pojo.Shipping;
+import com.fesine.mall.service.IShippingService;
+import com.fesine.mall.vo.ResponseVo;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @description: 类描述
+ * @author: fesine
+ * @createTime:2021/5/21
+ * @update:修改内容
+ * @author: fesine
+ * @updateTime:2021/5/21
+ */
+@Service
+@Slf4j
+public class ShippingServiceImpl implements IShippingService {
+    @Autowired
+    private ShippingMapper shippingMapper;
+    /**
+     * 添加地址
+     *
+     * @param uid
+     * @param form
+     * @return
+     */
+    @Override
+    public ResponseVo<Map<String, Integer>> add(Integer uid, ShippingForm form) {
+        Shipping shipping = new Shipping();
+        BeanUtils.copyProperties(form,shipping);
+        shipping.setUserId(uid);
+        int i = shippingMapper.insertSelective(shipping);
+        if (i == 0) {
+            return ResponseVo.error(ResponseEnum.ERROR);
+        }
+        Map<String, Integer> map = new HashMap<>();
+        map.put("shippingId",shipping.getId());
+        return ResponseVo.success(map);
+    }
+
+    /**
+     * 删除地址
+     *
+     * @param uid
+     * @param shippingId
+     * @return
+     */
+    @Override
+    public ResponseVo delete(Integer uid, Integer shippingId) {
+        Shipping shipping = new Shipping();
+        shipping.setId(shippingId);
+        shipping.setUserId(uid);
+        int i = shippingMapper.deleteByIdAndUserId(uid, shippingId);
+        if (i == 0) {
+            return ResponseVo.error(ResponseEnum.DELETE_SHIPPING_FAILED);
+        }
+        return ResponseVo.success();
+    }
+
+    /**
+     * 更新地址
+     *
+     * @param uid
+     * @param form
+     * @return
+     */
+    @Override
+    public ResponseVo<Shipping> update(Integer uid, ShippingForm form) {
+        return null;
+    }
+
+    /**
+     * 分页查询地址
+     *
+     * @param uid
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public ResponseVo<PageInfo<Shipping>> list(Integer uid, Integer pageNum, Integer pageSize) {
+        return null;
+    }
+}
