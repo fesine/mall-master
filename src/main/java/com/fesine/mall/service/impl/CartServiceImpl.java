@@ -3,6 +3,7 @@ package com.fesine.mall.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.fesine.mall.dao.ProductMapper;
 import com.fesine.mall.form.CartAddForm;
+import com.fesine.mall.form.CartUpdateForm;
 import com.fesine.mall.pojo.Cart;
 import com.fesine.mall.pojo.Product;
 import com.fesine.mall.service.ICartService;
@@ -87,7 +88,7 @@ public class CartServiceImpl implements ICartService {
         }
         opsForHash.put(redisKey, pid,JSON.toJSONString(cart));
 
-        return ResponseVo.success();
+        return list(uid);
     }
 
     /**
@@ -141,5 +142,119 @@ public class CartServiceImpl implements ICartService {
         cartVo.setCartTotalPrice(totalPrice);
         cartVo.setCartProductVoList(cartProductVoList);
         return ResponseVo.success(cartVo);
+    }
+
+    /**
+     * 更新购物车
+     *
+     * @param uid
+     * @param productId
+     * @param cartUpdateForm
+     * @return
+     */
+    @Override
+    public ResponseVo<CartVo> update(Integer uid, Integer productId, CartUpdateForm cartUpdateForm) {
+        HashOperations<String, String, String> opsForHash =
+                redisTemplate.opsForHash();
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        String value = opsForHash.get(redisKey, String.valueOf(productId));
+
+        if (StringUtils.isEmpty(value)) {
+            //没有该商品，报错
+            return ResponseVo.error(CART_PRODUCT_NOT_EXIST);
+        }
+        Cart cart = JSON.parseObject(value, Cart.class);
+        if (cart.getQuantity() != null && cart.getQuantity() >= 0) {
+            cart.setQuantity(cartUpdateForm.getQuantity());
+        }
+        if (cartUpdateForm.getSelected() != null) {
+            cart.setProductSelected(cartUpdateForm.getSelected());
+        }
+        opsForHash.put(redisKey, String.valueOf(productId), JSON.toJSONString(cart));
+        return list(uid);
+    }
+
+    /**
+     * 删除购物车
+     *
+     * @param uid
+     * @param productId
+     * @return
+     */
+    @Override
+    public ResponseVo<CartVo> delete(Integer uid, Integer productId) {
+        HashOperations<String, String, String> opsForHash =
+                redisTemplate.opsForHash();
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        String value = opsForHash.get(redisKey, String.valueOf(productId));
+
+        if (StringUtils.isEmpty(value)) {
+            //没有该商品，报错
+            return ResponseVo.error(CART_PRODUCT_NOT_EXIST);
+        }
+        opsForHash.delete(redisKey, String.valueOf(productId));
+        return list(uid);
+    }
+
+    /**
+     * 全选
+     *
+     * @param uid
+     * @return
+     */
+    @Override
+    public ResponseVo<CartVo> selectAll(Integer uid) {
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        HashOperations<String, String, String> opsForHash =
+                redisTemplate.opsForHash();
+        List<Cart> cartList = listForCart(uid);
+        for (Cart cart : cartList) {
+            cart.setProductSelected(true);
+            opsForHash.put(redisKey,String.valueOf(cart.getProductId()),JSON.toJSONString(cart));
+        }
+        return list(uid);
+    }
+
+    /**
+     * 全不选
+     *
+     * @param uid
+     * @return
+     */
+    @Override
+    public ResponseVo<CartVo> unSelectAll(Integer uid) {
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        HashOperations<String, String, String> opsForHash =
+                redisTemplate.opsForHash();
+        List<Cart> cartList = listForCart(uid);
+        for (Cart cart : cartList) {
+            cart.setProductSelected(false);
+            opsForHash.put(redisKey, String.valueOf(cart.getProductId()), JSON.toJSONString(cart));
+        }
+        return list(uid);
+    }
+
+    /**
+     * 获取购物车总数
+     *
+     * @param uid
+     * @return
+     */
+    @Override
+    public ResponseVo<Integer> sum(Integer uid) {
+        Integer sum = listForCart(uid).stream().map(Cart::getQuantity).reduce(0, Integer::sum);
+        return ResponseVo.success(sum);
+    }
+
+    private List<Cart> listForCart(Integer uid){
+        List<Cart> list = new ArrayList<>();
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        HashOperations<String, String, String> opsForHash =
+                redisTemplate.opsForHash();
+        Map<String, String> value = opsForHash.entries(redisKey);
+        for (String s : value.values()) {
+            list.add(JSON.parseObject(s, Cart.class));
+        }
+        return list;
     }
 }
