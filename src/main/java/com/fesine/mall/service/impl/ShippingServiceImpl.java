@@ -6,6 +6,7 @@ import com.fesine.mall.form.ShippingForm;
 import com.fesine.mall.pojo.Shipping;
 import com.fesine.mall.service.IShippingService;
 import com.fesine.mall.vo.ResponseVo;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -90,6 +92,10 @@ public class ShippingServiceImpl implements IShippingService {
      */
     @Override
     public ResponseVo<PageInfo<Shipping>> list(Integer uid, Integer pageNum, Integer pageSize) {
-        return null;
+        PageHelper.startPage(pageNum,pageSize);
+        List<Shipping> list = shippingMapper.selectByUserId(uid);
+        PageInfo pageInfo = new PageInfo(list);
+        pageInfo.setList(list);
+        return ResponseVo.success(pageInfo);
     }
 }

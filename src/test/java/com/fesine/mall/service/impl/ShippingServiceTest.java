@@ -1,10 +1,12 @@
 package com.fesine.mall.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.fesine.mall.MallApplicationTest;
 import com.fesine.mall.enums.ResponseEnum;
 import com.fesine.mall.form.ShippingForm;
 import com.fesine.mall.service.IShippingService;
 import com.fesine.mall.vo.ResponseVo;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,5 +57,8 @@ public class ShippingServiceTest extends MallApplicationTest {
 
     @Test
     public void list() {
+        ResponseVo<PageInfo> responseVo = shippingService.list(2, 1, 1);
+        log.info("list={}", JSON.toJSONString(responseVo));
+        Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
     }
 }

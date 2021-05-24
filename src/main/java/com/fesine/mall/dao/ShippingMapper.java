@@ -3,6 +3,8 @@ package com.fesine.mall.dao;
 import com.fesine.mall.pojo.Shipping;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 public interface ShippingMapper {
     int deleteByPrimaryKey(Integer id);
     int deleteByIdAndUserId(@Param("uid") Integer uid, @Param("shippingId") Integer shippingId);
@@ -16,4 +18,6 @@ public interface ShippingMapper {
     int updateByPrimaryKeySelective(Shipping record);
 
     int updateByPrimaryKey(Shipping record);
+
+    List<Shipping> selectByUserId(@Param("uid") Integer uid);
 }
