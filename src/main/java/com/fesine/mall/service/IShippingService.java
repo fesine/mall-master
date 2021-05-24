@@ -36,10 +36,11 @@ public interface IShippingService {
     /**
      * 更新地址
      * @param uid
+     * @param shippingId
      * @param form
      * @return
      */
-    ResponseVo<Shipping> update(Integer uid,ShippingForm form);
+    ResponseVo update(Integer uid, Integer shippingId, ShippingForm form);
 
     /**
      * 分页查询地址

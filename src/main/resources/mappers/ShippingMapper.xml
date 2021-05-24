@@ -123,9 +123,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.fesine.mall.pojo.Shipping">
     update mall_shipping
     <set>
-      <if test="userId != null">
-        user_id = #{userId,jdbcType=INTEGER},
-      </if>
       <if test="receiverName != null">
         receiver_name = #{receiverName,jdbcType=VARCHAR},
       </if>
@@ -150,14 +147,10 @@
       <if test="receiverZip != null">
         receiver_zip = #{receiverZip,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
+        and
+        user_id = #{userId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.fesine.mall.pojo.Shipping">
     update mall_shipping

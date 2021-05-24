@@ -78,8 +78,16 @@ public class ShippingServiceImpl implements IShippingService {
      * @return
      */
     @Override
-    public ResponseVo<Shipping> update(Integer uid, ShippingForm form) {
-        return null;
+    public ResponseVo update(Integer uid, Integer shippingId, ShippingForm form) {
+        Shipping shipping = new Shipping();
+        BeanUtils.copyProperties(form,shipping);
+        shipping.setId(shippingId);
+        shipping.setUserId(uid);
+        int i = shippingMapper.updateByPrimaryKeySelective(shipping);
+        if (i == 0) {
+            return ResponseVo.error(ResponseEnum.UPDATE_SHIPPING_FAILED);
+        }
+        return ResponseVo.success();
     }
 
     /**

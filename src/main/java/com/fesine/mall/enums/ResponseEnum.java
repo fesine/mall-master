@@ -22,6 +22,7 @@ public enum ResponseEnum {
     PRODUCT_STOCK_ERROR(14,"商品库存不足"),
     CART_PRODUCT_NOT_EXIST(15,"购物车里无此商品"),
     DELETE_SHIPPING_FAILED(16,"收货地址删除失败"),
+    UPDATE_SHIPPING_FAILED(16,"收货地址删除失败"),
     ;
     Integer code;
     String desc;
