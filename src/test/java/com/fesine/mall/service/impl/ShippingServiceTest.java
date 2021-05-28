@@ -9,6 +9,7 @@ import com.fesine.mall.service.IShippingService;
 import com.fesine.mall.vo.ResponseVo;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,10 @@ public class ShippingServiceTest extends MallApplicationTest {
 
     private ShippingForm form;
 
+    private Integer shippingId;
+
+    private Integer uid = 2;
+
     @Before
     public void init(){
         ShippingForm form = new ShippingForm();
@@ -46,31 +51,32 @@ public class ShippingServiceTest extends MallApplicationTest {
         form.setReceiverZip("313000");
         form.setReceiverAddress("钱江世纪城");
         this.form = form;
+        add();
     }
 
-    @Test
     public void add() {
-        ResponseVo<Map<String, Integer>> responseVo = shippingService.add(2, form);
-        Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
-    }
-
-    @Test
-    public void delete() {
-        ResponseVo responseVo = shippingService.delete(2, 5);
+        ResponseVo<Map<String, Integer>> responseVo = shippingService.add(uid, form);
+        this.shippingId = responseVo.getData().get("shippingId");
         Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
     }
 
     @Test
     public void update() {
         this.form.setReceiverCity("宁波");
-        ResponseVo responseVo = shippingService.update(2, 6,form);
+        ResponseVo responseVo = shippingService.update(uid, shippingId,form);
         Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
     }
 
     @Test
     public void list() {
-        ResponseVo<PageInfo<Shipping>> responseVo = shippingService.list(2, 1, 1);
+        ResponseVo<PageInfo<Shipping>> responseVo = shippingService.list(uid, 1, 10);
         log.info("list={}", JSON.toJSONString(responseVo));
+        Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
+    }
+
+    @After
+    public void delete() {
+        ResponseVo responseVo = shippingService.delete(uid, shippingId);
         Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
     }
 }
