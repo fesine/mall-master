@@ -180,4 +180,13 @@
     from mall_shipping
     where user_id = #{uid,jdbcType=INTEGER}
   </select>
+
+  <select id="selectByIdAndUserId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mall_shipping
+    where id=#{shippingId,jdbcType=INTEGER}
+    and
+    user_id = #{uid,jdbcType=INTEGER}
+  </select>
 </mapper>

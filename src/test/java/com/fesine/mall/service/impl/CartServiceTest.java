@@ -9,9 +9,7 @@ import com.fesine.mall.service.ICartService;
 import com.fesine.mall.vo.CartVo;
 import com.fesine.mall.vo.ResponseVo;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,13 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @Slf4j
 public class CartServiceTest extends MallApplicationTest {
-    private static final Integer uid = 1;
+    private static final Integer uid = 2;
 
     private static final Integer pid = 29;
     @Autowired
     private ICartService cartService;
 
-    @Before
+    @Test
     public void add() {
         CartAddForm addForm = new CartAddForm();
         addForm.setProductId(pid);
@@ -52,13 +50,13 @@ public class CartServiceTest extends MallApplicationTest {
     public void update(){
         CartUpdateForm cartUpdateForm = new CartUpdateForm();
         cartUpdateForm.setQuantity(3);
-        cartUpdateForm.setSelected(false);
+        cartUpdateForm.setSelected(true);
         ResponseVo<CartVo> responseVo = cartService.update(uid, pid, cartUpdateForm);
         log.info("list={}", JSON.toJSONString(responseVo));
         Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
     }
 
-    @After
+    @Test
     public void delete(){
         ResponseVo<CartVo> responseVo = cartService.delete(uid, pid);
         log.info("list={}", JSON.toJSONString(responseVo));

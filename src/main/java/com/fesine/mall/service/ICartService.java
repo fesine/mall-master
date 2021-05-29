@@ -2,8 +2,11 @@ package com.fesine.mall.service;
 
 import com.fesine.mall.form.CartAddForm;
 import com.fesine.mall.form.CartUpdateForm;
+import com.fesine.mall.pojo.Cart;
 import com.fesine.mall.vo.CartVo;
 import com.fesine.mall.vo.ResponseVo;
+
+import java.util.List;
 
 /**
  * @description: 类描述
@@ -68,5 +71,12 @@ public interface ICartService {
      * @return
      */
     ResponseVo<Integer> sum(Integer uid);
+
+    /**
+     * 获取购物车
+     * @param uid
+     * @return
+     */
+    List<Cart> listForCart(Integer uid);
 
 }
