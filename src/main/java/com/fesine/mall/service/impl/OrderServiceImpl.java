@@ -14,6 +14,8 @@ import com.fesine.mall.service.IOrderService;
 import com.fesine.mall.vo.OrderItemVo;
 import com.fesine.mall.vo.OrderVo;
 import com.fesine.mall.vo.ResponseVo;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,6 +138,89 @@ public class OrderServiceImpl implements IOrderService {
         return ResponseVo.success(orderVo);
     }
 
+    /**
+     * 查询订单列表
+     *
+     * @param uid
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public ResponseVo<PageInfo> list(Integer uid, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Order> orderList = orderMapper.selectByUserId(uid);
+        PageInfo pageInfo = new PageInfo<>(orderList);
+        Set<Long> orderNoSet = orderList.stream()
+                .map(Order::getOrderNo).collect(Collectors.toSet());
+        List<OrderItem> itemList =
+                orderItemMapper.selectByOrderNoSet(orderNoSet);
+        Set<Integer> shippingIdSet = orderList.stream()
+                .map(Order::getShippingId).collect(Collectors.toSet());
+        List<Shipping> shippingList = shippingMapper.selectByIdSet(shippingIdSet);
+        //生成以orderNo为key，value为对应orderNo list的map对象
+        Map<Long, List<OrderItem>> itemMap =
+                itemList.stream().collect(Collectors.groupingBy(OrderItem::getOrderNo));
+        Map<Integer, Shipping> shippingMap =
+                shippingList.stream().collect(Collectors.toMap(Shipping::getId,
+                        shipping -> shipping));
+        List<OrderVo> orderVoList = new ArrayList<>();
+        for (Order order : orderList) {
+            OrderVo orderVo = buildOrderVo(order, itemMap.get(order.getOrderNo()),
+                    shippingMap.get(order.getShippingId()));
+            orderVoList.add(orderVo);
+        }
+        pageInfo.setList(orderVoList);
+        return ResponseVo.success(pageInfo);
+    }
+
+    /**
+     * 查看订单详情
+     *
+     * @param uid
+     * @param orderNo
+     * @return
+     */
+    @Override
+    public ResponseVo<OrderVo> detail(Integer uid, Long orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if(order == null || !uid.equals(order.getUserId())){
+            return ResponseVo.error(ResponseEnum.ORDER_NOT_EXIST);
+        }
+        Set<Long> orderNoSet = new HashSet<>();
+        orderNoSet.add(orderNo);
+        List<OrderItem> itemList = orderItemMapper.selectByOrderNoSet(orderNoSet);
+        Shipping shipping = shippingMapper.selectByPrimaryKey(order.getShippingId());
+        OrderVo orderVo = buildOrderVo(order, itemList, shipping);
+        return ResponseVo.success(orderVo);
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param uid
+     * @param orderNo
+     * @return
+     */
+    @Override
+    public ResponseVo cancel(Integer uid, Long orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null || !uid.equals(order.getUserId())) {
+            return ResponseVo.error(ResponseEnum.ORDER_NOT_EXIST);
+        }
+        //只有未付款的订单才可以取消
+        if(!OrderStatusEnum.NO_PAY.getCode().equals(order.getStatus())){
+            return ResponseVo.error(ResponseEnum.ORDER_STATUS_ERROR);
+        }
+        order.setStatus(OrderStatusEnum.CANCELED.getCode());
+        order.setCloseTime(new Date());
+        int i = orderMapper.updateByPrimaryKeySelective(order);
+        if (i <= 0) {
+            return ResponseVo.error(ResponseEnum.ERROR);
+        }
+        return ResponseVo.success();
+    }
+
     private OrderVo buildOrderVo(Order order, List<OrderItem> itemList, Shipping shipping) {
         OrderVo orderVo= new OrderVo();
         BeanUtils.copyProperties(order, orderVo);
@@ -145,8 +230,10 @@ public class OrderServiceImpl implements IOrderService {
             return itemVo;
         }).collect(Collectors.toList());
         orderVo.setOrderItemVoList(itemVoList);
-        orderVo.setShippingId(shipping.getId());
-        orderVo.setShippingVo(shipping);
+        if (shipping != null) {
+            orderVo.setShippingId(shipping.getId());
+            orderVo.setShippingVo(shipping);
+        }
         return orderVo;
     }
 
