@@ -1,6 +1,7 @@
 package com.fesine.mall.annotation;
 
 import com.fesine.mall.annotation.entity.ItemDTO;
+import lombok.Data;
 
 /**
  * @description: 类描述
@@ -10,6 +11,7 @@ import com.fesine.mall.annotation.entity.ItemDTO;
  * @author: fesine
  * @updateTime:2021/6/23
  */
+@Data
 public class MyItemDTO extends ItemDTO {
 
     @ItemData(itemKey = "s_name")
@@ -18,19 +20,13 @@ public class MyItemDTO extends ItemDTO {
     @ItemData(itemKey = "s_age")
     private String age;
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * address是由name的值作为key再取出的值
+     */
+    @ItemData(itemKey = "s_name->value")
+    private String  address;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @ItemData(itemKey = "s_name->value->value")
+    private String zip;
 
-    public String getAge() {
-        return age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
 }

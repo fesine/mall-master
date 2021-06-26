@@ -17,7 +17,7 @@ public @interface MetricsData {
 
     /**
      * 配置分组字段
-     * @return
+     * @return data.get(groupBy)
      */
-    String groupBy() default "";
+    String groupBy();
 }

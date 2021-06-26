@@ -3,7 +3,7 @@ package com.fesine.mall.annotation;
 import java.lang.annotation.*;
 
 /**
- * @description: 类描述
+ * @description: 获取List中每个map的元素转换成DTO属性
  * @author: fesine
  * @createTime:2021/6/23
  * @update:修改内容
@@ -17,7 +17,10 @@ public @interface ItemData {
 
     /**
      * 配置对应的map key
-     * @return
+     * 传递获取值使用key.value
+     * ->value表示一层传递，如有多层传递使用key->value->value
+     * map = metricsData.iter
+     * @return map.get(itemKey)
      */
-    String itemKey() default "";
+    String itemKey();
 }

@@ -87,6 +87,13 @@ public class MetricsAnnotationParseUtil {
                     ItemData fieldAnnotation = field.getAnnotation(ItemData.class);
                     if (fieldAnnotation != null) {
                         String itemKey = fieldAnnotation.itemKey();
+                        if(itemKey.endsWith("->value")){
+                            String[] itemArr = itemKey.split("->");
+                            itemKey = itemArr[0];
+                            for (int i = 1; i < itemArr.length; i++) {
+                                itemKey = String.valueOf(itemMap.get(itemKey));
+                            }
+                        }
                         Object value = itemMap.get(itemKey);
                         setFieldValue(object, field, value);
                     }
