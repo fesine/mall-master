@@ -1,9 +1,12 @@
 package com.fesine.mall.annotation;
 
 import com.fesine.mall.annotation.entity.DynamicItemDTO;
+import com.fesine.mall.annotation.entity.ItemDTO;
 import com.fesine.mall.annotation.entity.MetricsDTO;
 import com.fesine.mall.annotation.util.MetricsAnnotationParseUtil;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,12 +39,24 @@ public class MetricsTest {
         subMap2.put("江苏无锡", "213000");
         mapList.add(subMap);
         mapList.add(subMap2);
-
-        metricsDTO = MetricsAnnotationParseUtil.parseToDTO(metricsDTO, map);
+        MyMetricsDTO mymetricsDTO = (MyMetricsDTO)MetricsAnnotationParseUtil.parseToDTO(metricsDTO, map);
         System.out.println();
         MetricsDTO<DynamicItemDTO> dynamicItemDTOMetricsDTO = new MyDynamicMetricsDTO();
         dynamicItemDTOMetricsDTO = MetricsAnnotationParseUtil.parseToDTO(dynamicItemDTOMetricsDTO
                 , map);
+        ItemDTO itemDTO = new MyItemDTO();
+        itemDTO = MetricsAnnotationParseUtil.parseToItemDTO(itemDTO, subMap);
+        List<MyItemDTO> list = MetricsAnnotationParseUtil.parseToItemList(new MyItemDTO(), mapList);
         System.out.println();
+        List myItemDTOList = new ArrayList<MyItemDTO>();
+        Type type = myItemDTOList.getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            // 当前集合的泛型类型
+            ParameterizedType pt = (ParameterizedType) type;
+            // 得到泛型里的class类型对象
+            Type[] actualTypeArguments = pt.getActualTypeArguments();
+            Class<?> itemClass = (Class<?>) actualTypeArguments[0];
+            System.out.println();
+        }
     }
 }

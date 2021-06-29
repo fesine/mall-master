@@ -26,6 +26,14 @@ import java.util.Map;
  */
 public class MetricsAnnotationParseUtil {
 
+    /**
+     * 转换map到dto
+     * @param t
+     * @param map
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
     public static<T extends MetricsDTO> T parseToDTO(T t,Map<String, List<Map<String, Object>>> map) throws Exception {
         Class cls = t.getClass();
         //获取注解
@@ -103,6 +111,92 @@ public class MetricsAnnotationParseUtil {
         }
         t.setItemList(objectList);
 
+        return t;
+    }
+
+    /**
+     * 转换mapList to itemList
+     * @param t
+     * @param list
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T extends ItemDTO>  List<T> parseToItemList(T t,List<Map<String, Object>> list) throws Exception {
+        Class itemClass = t.getClass();
+        //获取列表属性
+        if (itemClass.equals(ItemDTO.class)) {
+            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
+        }
+        List<T> result = new ArrayList<>();
+        //继续处理item
+        if(itemClass.equals(DynamicItemDTO.class)){
+            for (Map<String, Object> itemMap : list) {
+                //添加动态对象，map只有一个元素
+                DynamicItemDTO object = (DynamicItemDTO)itemClass.newInstance();
+                Iterator<Map.Entry<String, Object>> iterator = itemMap.entrySet().iterator();
+                Map.Entry<String, Object> next = iterator.next();
+                object.setKey(next.getKey());
+                object.setValue(next.getValue());
+                result.add((T)object);
+            }
+            return result;
+        }else{
+            for (Map<String, Object> itemMap : list) {
+                Object object = itemClass.newInstance();
+                //获取所有的属性
+                Field[] itemField = itemClass.getDeclaredFields();
+                for (Field field : itemField) {
+                    EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
+                    if (fieldAnnotation != null) {
+                        String itemKey = fieldAnnotation.itemKey();
+                        if(itemKey.endsWith("->value")){
+                            String[] itemArr = itemKey.split("->");
+                            itemKey = itemArr[0];
+                            for (int i = 1; i < itemArr.length; i++) {
+                                itemKey = String.valueOf(itemMap.get(itemKey));
+                            }
+                        }
+                        Object value = itemMap.get(itemKey);
+                        setFieldValue(object, field, value);
+                    }
+                }
+                result.add((T) object);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 转换map to itemDTO
+     * @param t
+     * @param map
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static<T extends ItemDTO> T parseToItemDTO(T t,Map<String, Object> map) throws Exception {
+        Class cls = t.getClass();
+        if (cls.equals(ItemDTO.class)) {
+            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
+        }
+        //获取所有的属性
+        Field[] itemField = cls.getDeclaredFields();
+        for (Field field : itemField) {
+            EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
+            if (fieldAnnotation != null) {
+                String itemKey = fieldAnnotation.itemKey();
+                if (itemKey.endsWith("->value")) {
+                    String[] itemArr = itemKey.split("->");
+                    itemKey = itemArr[0];
+                    for (int i = 1; i < itemArr.length; i++) {
+                        itemKey = String.valueOf(map.get(itemKey));
+                    }
+                }
+                Object value = map.get(itemKey);
+                setFieldValue(t, field, value);
+            }
+        }
         return t;
     }
 
