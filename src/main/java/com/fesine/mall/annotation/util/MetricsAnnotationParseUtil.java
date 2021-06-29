@@ -1,7 +1,7 @@
 package com.fesine.mall.annotation.util;
 
-import com.fesine.mall.annotation.ItemData;
-import com.fesine.mall.annotation.MetricsData;
+import com.fesine.mall.annotation.EsItemField;
+import com.fesine.mall.annotation.EsMetricsField;
 import com.fesine.mall.annotation.entity.DynamicItemDTO;
 import com.fesine.mall.annotation.entity.ItemDTO;
 import com.fesine.mall.annotation.entity.MetricsDTO;
@@ -37,10 +37,10 @@ public class MetricsAnnotationParseUtil {
         String groupBy = null;
         for (Annotation annotation : annotations) {
             //判断是否包含有MetricsData注解
-            if (annotation.annotationType().equals(MetricsData.class)){
+            if (annotation.annotationType().equals(EsMetricsField.class)){
                 hasMetricsDataAnnotation = true;
                 //获取groupBy
-                groupBy = ((MetricsData) annotation).groupBy();
+                groupBy = ((EsMetricsField) annotation).groupBy();
                 break;
             }
         }
@@ -84,7 +84,7 @@ public class MetricsAnnotationParseUtil {
                 //获取所有的属性
                 Field[] itemField = itemClass.getDeclaredFields();
                 for (Field field : itemField) {
-                    ItemData fieldAnnotation = field.getAnnotation(ItemData.class);
+                    EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
                     if (fieldAnnotation != null) {
                         String itemKey = fieldAnnotation.itemKey();
                         if(itemKey.endsWith("->value")){

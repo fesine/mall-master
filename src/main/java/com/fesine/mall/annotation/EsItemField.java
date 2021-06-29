@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ItemData {
+public @interface EsItemField {
 
     /**
      * 配置对应的map key

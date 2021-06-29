@@ -11,6 +11,6 @@ import com.fesine.mall.annotation.entity.MetricsDTO;
  * @author: fesine
  * @updateTime:2021/6/23
  */
-@MetricsData(groupBy = "s_ip")
+@EsMetricsField(groupBy = "s_ip")
 public class MyDynamicMetricsDTO extends MetricsDTO<DynamicItemDTO> {
 }

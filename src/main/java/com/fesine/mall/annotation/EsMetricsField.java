@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MetricsData {
+public @interface EsMetricsField {
 
     /**
      * 配置分组字段

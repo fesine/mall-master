@@ -14,19 +14,19 @@ import lombok.Data;
 @Data
 public class MyItemDTO extends ItemDTO {
 
-    @ItemData(itemKey = "s_name")
+    @EsItemField(itemKey = "s_name")
     private String name;
 
-    @ItemData(itemKey = "s_age")
+    @EsItemField(itemKey = "s_age")
     private String age;
 
     /**
      * address是由name的值作为key再取出的值
      */
-    @ItemData(itemKey = "s_name->value")
+    @EsItemField(itemKey = "s_name->value")
     private String  address;
 
-    @ItemData(itemKey = "s_name->value->value")
+    @EsItemField(itemKey = "s_name->value->value")
     private String zip;
 
 }
