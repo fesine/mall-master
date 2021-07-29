@@ -2,6 +2,8 @@ package com.fesine.mall;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -16,7 +18,8 @@ import java.util.stream.Stream;
 public class StreamTest {
 
     public static void main(String[] args) {
-        StreamTest.createByStaticMethod();
+        //StreamTest.createByStaticMethod();
+        StreamTest.groupByDataRange();
     }
 
     //Stream可以通过集合数组创建
@@ -54,5 +57,19 @@ public class StreamTest {
 
         Stream<Double> stream3 = Stream.generate(Math::random).limit(3);
         stream3.forEach(System.out::println);
+    }
+
+    public static void groupByDataRange(){
+        Integer[] array = {5,10,15};
+        List<Integer> list = Arrays.asList(array);
+        Stream<Integer> stream = Stream.of(1,1,3,5,7,9,10, 2, 3, 4, 5, 6,13,15,17,14,13);
+        Map<Integer, List<Integer>> collect = stream.collect(Collectors.groupingBy(e -> {
+            for (Integer i : list) {
+                if (e < i) return i;
+            }
+            return list.get(list.size() - 1)+1;
+        }));
+        Map<Integer, Integer> collect1 = collect.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().size()));
+        System.out.println();
     }
 }
