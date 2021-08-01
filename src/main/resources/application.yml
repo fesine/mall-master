@@ -14,8 +14,8 @@ mybatis:
 logging:
   pattern:
     console: "[%thread] %-5level %logger{36} - %msg%n"
-  level: info
-
+  level:
+    root: info
 
 # 不拦截配置
 interceptorconfig:

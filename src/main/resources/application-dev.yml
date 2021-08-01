@@ -16,3 +16,12 @@ spring:
 #    port: 5672
 #    username: guest
 #    password: guest
+
+#测试配置对象
+report:
+  analyse:
+    sysConfigList:
+      - sysName: 系统名称1
+        sysCodeList: a,b,c
+      - sysName: 系统名称2
+        sysCodeList: d,e,f
