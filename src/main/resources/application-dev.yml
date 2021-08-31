@@ -25,3 +25,15 @@ report:
         sysCodeList: a,b,c
       - sysName: 系统名称2
         sysCodeList: d,e,f
+
+es:
+  primary: iis
+  esConfigMap:
+    iis:
+      host: 127.0.0.1:9002
+      username: iis
+      password: 123456
+    jwlog:
+      host: 127.0.0.2:9002
+      username: jwlog
+      password: admin123

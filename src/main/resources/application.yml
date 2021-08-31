@@ -26,4 +26,6 @@ interceptorconfig:
       - /categories
       - /products
       - /products/*
+      - /iis
+      - /jwlog
 

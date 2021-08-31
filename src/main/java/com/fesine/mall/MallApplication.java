@@ -1,5 +1,7 @@
 package com.fesine.mall;
 
+import com.fesine.mall.config.EsClientConfig;
+import com.fesine.mall.config.EsClusterConfig;
 import com.fesine.mall.config.ReportSysConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
@@ -8,7 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
+import java.util.Map;
 
 /**
  * @description: 主启动类
@@ -26,6 +28,9 @@ public class MallApplication {
     @Autowired
     private ReportSysConfig config;
 
+    @Autowired
+    private EsClientConfig esClientConfig;
+
     public static void main(String[] args) {
         SpringApplication.run(MallApplication.class,args);
 
@@ -33,10 +38,13 @@ public class MallApplication {
 
     @PostConstruct
     public void init(){
-        List<ReportSysConfig.SysConfig> configList = config.getSysConfigList();
+        //List<ReportSysConfig.SysConfig> configList = config.getSysConfigList();
         //for (ReportSysConfig.SysConfig sysConfig : configList) {
         //    log.info(sysConfig.getSysName()+"-->"+sysConfig.getSysCodeList().toString());
         //}
-        log.info(configList.toString());
+        //log.info(configList.toString());
+        Map<String, EsClusterConfig> esConfigMap =
+                esClientConfig.getEsConfigMap();
+        log.info(esClientConfig.toString());
     }
 }
