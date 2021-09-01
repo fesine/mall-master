@@ -46,9 +46,13 @@ public class EsClientBeanProcessor implements BeanDefinitionRegistryPostProcesso
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         // 注册Bean定义，容器根据定义返回bean
-        log.info("register IEsService>>>>>>>>>>>>>>>>");
-        BindResult<EsClientConfig> restServiceBindResult = Binder.get(environment).bind(ES_URL_PREFIX, EsClientConfig.class);
-        EsClientConfig config = restServiceBindResult.get();
+        log.info(">>>>>>>>>>>>>>>>register IEsService");
+        BindResult<EsClientConfig> bindResult = Binder.get(environment).bind(ES_URL_PREFIX, EsClientConfig.class);
+        if (!bindResult.isBound()){
+            log.warn(">>>>>>>>>>>>>>>>[EsClientConfig not set properties value]");
+            return;
+        }
+        EsClientConfig config = bindResult.get();
         if (StringUtils.isEmpty(config.getPrimary())) {
             throw new BeanCreationException("[EsClientConfig not set primary value]");
         }

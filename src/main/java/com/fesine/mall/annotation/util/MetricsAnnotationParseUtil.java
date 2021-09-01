@@ -8,9 +8,13 @@ import com.fesine.mall.annotation.entity.MetricsDTO;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +29,8 @@ import java.util.Map;
  * @updateTime:2021/6/23
  */
 public class MetricsAnnotationParseUtil {
+
+    private static final String nullValue = "null";
 
     /**
      * 转换map到dto
@@ -103,7 +109,7 @@ public class MetricsAnnotationParseUtil {
                             }
                         }
                         Object value = itemMap.get(itemKey);
-                        setFieldValue(object, field, value);
+                        setFieldValue(object, field, value, fieldAnnotation);
                     }
                 }
                 objectList.add((ItemDTO) object);
@@ -158,7 +164,7 @@ public class MetricsAnnotationParseUtil {
                             }
                         }
                         Object value = itemMap.get(itemKey);
-                        setFieldValue(object, field, value);
+                        setFieldValue(object, field, value, fieldAnnotation);
                     }
                 }
                 result.add((T) object);
@@ -194,7 +200,7 @@ public class MetricsAnnotationParseUtil {
                     }
                 }
                 Object value = map.get(itemKey);
-                setFieldValue(t, field, value);
+                setFieldValue(t, field, value, fieldAnnotation);
             }
         }
         return t;
@@ -207,8 +213,41 @@ public class MetricsAnnotationParseUtil {
      * @param value
      * @throws IllegalAccessException
      */
-    private static void setFieldValue(Object object, Field field, Object value) throws IllegalAccessException {
+    private static void setFieldValue(Object object, Field field, Object value, EsItemField esItemField) throws Exception {
         field.setAccessible(true);
-        field.set(object, value);
+        //处理默认值转换
+        String expect = esItemField.expect();
+        if ((nullValue.equals(expect) && value == null) || expect.equals(value)) {
+            value = esItemField.fill();
+        }
+        if (value == null) {
+            return;
+        }
+        //处理日期转换
+        String dateFormat = esItemField.dateFormat();
+        if(!StringUtils.isEmpty(dateFormat)){
+            Class<?> type = field.getType();
+            if (type.equals(LocalDate.class)) {
+                value = LocalDate.parse(value.toString(),DateTimeFormatter.ofPattern(dateFormat));
+            }else if (type.equals(LocalDateTime.class)) {
+                value = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
+            }
+            field.set(object, value);
+            return;
+        }
+        Object o = getObjectField(field, value);
+        field.set(object,o);
+
     }
+
+    @SuppressWarnings("unchecked")
+    public static Object getObjectField(Field field, Object value) throws Exception {
+        Class typeClass = field.getType();
+        //获取有参构造函数
+        Constructor con = typeClass.getConstructor(value.getClass());
+        //构造函数做初始化
+        Object obj = con.newInstance(value);
+        return obj;
+    }
+
 }

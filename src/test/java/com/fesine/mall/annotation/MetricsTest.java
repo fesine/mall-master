@@ -5,8 +5,6 @@ import com.fesine.mall.annotation.entity.ItemDTO;
 import com.fesine.mall.annotation.entity.MetricsDTO;
 import com.fesine.mall.annotation.util.MetricsAnnotationParseUtil;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,13 +28,29 @@ public class MetricsTest {
         Map<String, Object> subMap = new HashMap<>();
         Map<String, Object> subMap2 = new HashMap<>();
         subMap.put("s_name", "fesine");
-        subMap.put("s_age", "15");
+        subMap.put("s_sex", "false");
+        subMap.put("s_age", "NaN");
+        subMap.put("s_birthday", "1994-08-08");
+        subMap.put("s_married", "0");
+        subMap.put("s_character", "NaN");
+        subMap.put("s_height", "170");
+        subMap.put("s_heavy", "75.5");
+        subMap.put("s_money", "3999.82");
         subMap.put("fesine", "浙江杭州");
         subMap.put("浙江杭州", "310000");
+        subMap.put("s_createTime", "2021-09-02 00:51:00.879");
         subMap2.put("s_name", "dap");
         subMap2.put("s_age", "30");
+        subMap2.put("s_birthday", "2002-10-01");
+        //subMap2.put("s_married", "1");
+        subMap2.put("s_character", "N");
+        subMap2.put("s_sex", "true");
+        subMap2.put("s_height", "170");
+        subMap2.put("s_heavy", "75.5");
+        subMap2.put("s_money", "3999.82");
         subMap2.put("dap", "江苏无锡");
-        subMap2.put("江苏无锡", "213000");
+        subMap2.put("s_createTime", "2021-09-02 00:52:00.879");
+        //subMap2.put("江苏无锡", "213000");
         mapList.add(subMap);
         mapList.add(subMap2);
         MyMetricsDTO mymetricsDTO = (MyMetricsDTO)MetricsAnnotationParseUtil.parseToDTO(metricsDTO, map);
@@ -48,15 +62,15 @@ public class MetricsTest {
         itemDTO = MetricsAnnotationParseUtil.parseToItemDTO(itemDTO, subMap);
         List<MyItemDTO> list = MetricsAnnotationParseUtil.parseToItemList(new MyItemDTO(), mapList);
         System.out.println();
-        List myItemDTOList = new ArrayList<MyItemDTO>();
-        Type type = myItemDTOList.getClass().getGenericSuperclass();
-        if (type instanceof ParameterizedType) {
-            // 当前集合的泛型类型
-            ParameterizedType pt = (ParameterizedType) type;
-            // 得到泛型里的class类型对象
-            Type[] actualTypeArguments = pt.getActualTypeArguments();
-            Class<?> itemClass = (Class<?>) actualTypeArguments[0];
-            System.out.println();
-        }
+        //List myItemDTOList = new ArrayList<MyItemDTO>();
+        //Type type = myItemDTOList.getClass().getGenericSuperclass();
+        //if (type instanceof ParameterizedType) {
+        //    // 当前集合的泛型类型
+        //    ParameterizedType pt = (ParameterizedType) type;
+        //    // 得到泛型里的class类型对象
+        //    Type[] actualTypeArguments = pt.getActualTypeArguments();
+        //    Class<?> itemClass = (Class<?>) actualTypeArguments[0];
+        //    System.out.println();
+        //}
     }
 }

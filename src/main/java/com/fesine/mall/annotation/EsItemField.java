@@ -23,4 +23,18 @@ public @interface EsItemField {
      * @return map.get(itemKey)
      */
     String itemKey();
+
+    /**
+     * 当返回值==expect配置的值时，替换成fill的值
+     * @return
+     */
+    String expect() default "";
+
+    String fill() default "";
+
+    /**
+     * 返回值是日期字符串时，进行日期转换
+     * @return
+     */
+    String dateFormat() default "";
 }
