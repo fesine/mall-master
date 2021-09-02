@@ -1,7 +1,9 @@
 package com.fesine.mall.service.impl;
 
+import com.fesine.mall.annotation.ServiceGroup;
 import com.fesine.mall.dao.UserMapper;
 import com.fesine.mall.pojo.User;
+import com.fesine.mall.service.IEsService;
 import com.fesine.mall.service.IUserService;
 import com.fesine.mall.vo.ResponseVo;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 
 import static com.fesine.mall.enums.ResponseEnum.*;
@@ -24,6 +27,14 @@ import static com.fesine.mall.enums.ResponseEnum.*;
 @Slf4j
 @Service
 public class UserServiceImpl implements IUserService {
+
+    @Resource
+    @ServiceGroup("iis")
+    private IEsService iisService;
+
+    @Autowired
+    @ServiceGroup("jwlog")
+    private IEsService jwlogService;
 
     @Autowired
     private UserMapper userMapper;

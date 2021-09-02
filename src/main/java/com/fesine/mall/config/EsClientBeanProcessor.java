@@ -69,8 +69,16 @@ public class EsClientBeanProcessor implements BeanDefinitionRegistryPostProcesso
             if(entry.getKey().equals(config.getPrimary())){
                 beanDefinition.setPrimary(true);
             }
-            //注册bean定义
-            registry.registerBeanDefinition(entry.getKey(), beanDefinition);
+            Class<?>[] interfaces = EsServiceImpl.class.getInterfaces();
+            if (interfaces != null && interfaces.length > 0) {
+                //注册bean定义
+                for (Class<?> anInterface : interfaces) {
+                    registry.registerBeanDefinition(entry.getKey()+ anInterface.getName(), beanDefinition);
+                }
+            } else {
+                //注册bean定义
+                registry.registerBeanDefinition(entry.getKey()+ EsServiceImpl.class.getName(), beanDefinition);
+            }
         }
 
     }

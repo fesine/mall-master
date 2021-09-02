@@ -1,15 +1,18 @@
 package com.fesine.mall.controller;
 
+import com.fesine.mall.annotation.ServiceGroup;
 import com.fesine.mall.constants.MallConstants;
 import com.fesine.mall.form.CartAddForm;
 import com.fesine.mall.form.CartUpdateForm;
 import com.fesine.mall.pojo.User;
 import com.fesine.mall.service.ICartService;
+import com.fesine.mall.service.IEsService;
 import com.fesine.mall.vo.CartVo;
 import com.fesine.mall.vo.ResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -23,6 +26,14 @@ import javax.validation.Valid;
  */
 @RestController
 public class CartController {
+
+    @Resource
+    @ServiceGroup("iis")
+    private IEsService iisService;
+
+    @Autowired
+    @ServiceGroup("jwlog")
+    private IEsService jwlogService;
 
     @Autowired
     private ICartService cartService;

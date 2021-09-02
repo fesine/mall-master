@@ -1,5 +1,6 @@
 package com.fesine.mall;
 
+import com.fesine.mall.annotation.ScanPackage;
 import com.fesine.mall.config.EsClientConfig;
 import com.fesine.mall.config.EsClusterConfig;
 import com.fesine.mall.config.ReportSysConfig;
@@ -23,6 +24,7 @@ import java.util.Map;
 @SpringBootApplication
 @MapperScan(basePackages = "com.fesine.mall.dao")
 @Slf4j
+@ScanPackage({"com.fesine.mall.service", "com.fesine.mall.controller"})
 public class MallApplication {
 
     @Autowired

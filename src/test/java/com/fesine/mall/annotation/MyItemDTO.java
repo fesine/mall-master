@@ -54,7 +54,7 @@ public class MyItemDTO extends ItemDTO {
     @JsonFormat(timezone = "GMT+8",pattern = "yyyyMMdd")
     private LocalDate birthday;
 
-    @EsItemField(itemKey = "s_createTime",dateFormat = "yyyy-MM-dd HH:mm:ss.SSS")
+    @EsItemField(itemKey = "s_createTime",dateFormat = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy年MM月dd日 HH:mm:ss.SSS")
     private LocalDateTime createTime;
 

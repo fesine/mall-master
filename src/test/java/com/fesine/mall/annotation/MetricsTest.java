@@ -38,7 +38,7 @@ public class MetricsTest {
         subMap.put("s_money", "3999.82");
         subMap.put("fesine", "浙江杭州");
         subMap.put("浙江杭州", "310000");
-        subMap.put("s_createTime", "2021-09-02 00:51:00.879");
+        subMap.put("s_createTime", "2021-09-02T00:51+08:00[Asia/Shanghai]");
         subMap2.put("s_name", "dap");
         subMap2.put("s_age", "30");
         subMap2.put("s_birthday", "2002-10-01");
@@ -49,12 +49,12 @@ public class MetricsTest {
         subMap2.put("s_heavy", "75.5");
         subMap2.put("s_money", "3999.82");
         subMap2.put("dap", "江苏无锡");
-        subMap2.put("s_createTime", "2021-09-02 00:52:00.879");
+        subMap2.put("s_createTime", "2021-09-02T00:52+08:00[Asia/Shanghai]");
         //subMap2.put("江苏无锡", "213000");
         mapList.add(subMap);
         mapList.add(subMap2);
         MyMetricsDTO mymetricsDTO = (MyMetricsDTO)MetricsAnnotationParseUtil.parseToDTO(metricsDTO, map);
-        System.out.println();
+        System.out.println(mymetricsDTO);
         MetricsDTO<DynamicItemDTO> dynamicItemDTOMetricsDTO = new MyDynamicMetricsDTO();
         dynamicItemDTOMetricsDTO = MetricsAnnotationParseUtil.parseToDTO(dynamicItemDTOMetricsDTO
                 , map);
