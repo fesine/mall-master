@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
@@ -110,18 +109,10 @@ public class EsClientBeanPostProcessor implements BeanPostProcessor, Application
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-        String name = ManagementFactory.getRuntimeMXBean().getName();
-        System.out.println(name);
-        String pid = name.split("@")[0];
-        System.out.println(pid);
-        String mainClass = System.getenv("JAVA_MAIN_CLASS_" + pid);
-        Class c = Class.forName(mainClass);
-        Object main = c.newInstance();
-        ScanPackage s = main.getClass().getAnnotation(ScanPackage.class);
-        if (s != null) {
-            scanPackage = s.value();
+        try{
+            scanPackage = applicationContext.getBean(ScanPackage.class.getName(), String[].class);
             log.info(">>>>>>>>>>>>>>>>>scanPackage={}", Arrays.toString(scanPackage));
-        }else{
+        }catch (BeansException e){
             log.info(">>>>>>>>>>>>>>>>>scanPackage not configured，will scan all package.");
 
         }

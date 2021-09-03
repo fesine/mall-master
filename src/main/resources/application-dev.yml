@@ -11,6 +11,9 @@ spring:
   redis:
     host: 10.211.55.130
     port: 6379
+
+  aop:
+    proxy-target-clas: true
 #  rabbitmq:
 #    addresses: 127.0.0.1
 #    port: 5672
@@ -37,3 +40,4 @@ es:
       host: 127.0.0.2:9002
       username: jwlog
       password: admin123
+

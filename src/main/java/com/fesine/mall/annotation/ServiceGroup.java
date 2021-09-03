@@ -13,6 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE,ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Inherited
 public @interface ServiceGroup {
 
     /**
