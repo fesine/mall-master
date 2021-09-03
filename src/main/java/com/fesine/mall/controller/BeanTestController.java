@@ -22,7 +22,6 @@ import javax.annotation.Resource;
  */
 @Api(value = "bean测试接口", tags = "bean测试")
 @RestController
-@ServiceGroup("jwlog")
 public class BeanTestController {
 
     /**
@@ -37,6 +36,7 @@ public class BeanTestController {
      */
     @Auth
     @Autowired
+    @ServiceGroup("jwlog")
     private IEsService jwlogService;
 
     @Autowired

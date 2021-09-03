@@ -37,11 +37,10 @@ public class EsClientBeanPostProcessor implements BeanPostProcessor, Application
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        Object target = bean;
+        Object target = getCglibObject(bean);
         //1、获取类上面的ServiceGroup注解
         ServiceGroup serviceGroup = bean.getClass().getAnnotation(ServiceGroup.class);
         if (serviceGroup != null) {
-            target = getCglibObject(bean);
             //获取失败是普通bean
             //1.1、获取所有包含注解的属性
             Field[]  fields = target.getClass().getDeclaredFields();
