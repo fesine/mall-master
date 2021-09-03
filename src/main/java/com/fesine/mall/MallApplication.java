@@ -9,6 +9,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -25,6 +27,8 @@ import java.util.Map;
 @MapperScan(basePackages = "com.fesine.mall.dao")
 @Slf4j
 @ScanPackage({"com.fesine.mall.service", "com.fesine.mall.controller"})
+@Configuration
+@EnableAspectJAutoProxy
 public class MallApplication {
 
     @Autowired

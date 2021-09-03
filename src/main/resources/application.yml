@@ -28,4 +28,5 @@ interceptorconfig:
       - /products/*
       - /iis
       - /jwlog
+      - /doc.html
 

@@ -1,9 +1,11 @@
 package com.fesine.mall.service.impl;
 
+import com.fesine.mall.annotation.ServiceGroup;
 import com.fesine.mall.dao.ShippingMapper;
 import com.fesine.mall.enums.ResponseEnum;
 import com.fesine.mall.form.ShippingForm;
 import com.fesine.mall.pojo.Shipping;
+import com.fesine.mall.service.IEsService;
 import com.fesine.mall.service.IShippingService;
 import com.fesine.mall.vo.ResponseVo;
 import com.github.pagehelper.PageHelper;
@@ -27,9 +29,14 @@ import java.util.Map;
  */
 @Service
 @Slf4j
+@ServiceGroup("iis")
 public class ShippingServiceImpl implements IShippingService {
+
     @Autowired
     private ShippingMapper shippingMapper;
+
+    @Autowired
+    private IEsService esService;
     /**
      * 添加地址
      *

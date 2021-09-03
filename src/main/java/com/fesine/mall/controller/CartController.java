@@ -9,6 +9,8 @@ import com.fesine.mall.service.ICartService;
 import com.fesine.mall.service.IEsService;
 import com.fesine.mall.vo.CartVo;
 import com.fesine.mall.vo.ResponseVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +26,10 @@ import javax.validation.Valid;
  * @author: fesine
  * @updateTime:2021/5/20
  */
+@Api(value = "cart测试接口", tags = "cart测试")
 @RestController
 public class CartController {
+
 
     @Resource
     @ServiceGroup("iis")
@@ -37,6 +41,18 @@ public class CartController {
 
     @Autowired
     private ICartService cartService;
+
+    @ApiOperation(value = "iis正常，field注解，包扫描", tags = "cart测试")
+    @GetMapping("/cart/iis")
+    public String iis() {
+        return iisService.getMetrics();
+    }
+
+    @ApiOperation(value = "jwlog正常，field注解，包扫描", tags = "cart测试")
+    @GetMapping("/cart/jwlog")
+    public String jwlog() {
+        return jwlogService.getMetrics();
+    }
 
     @PostMapping("/carts")
     public ResponseVo<CartVo> add(@Valid @RequestBody CartAddForm cartAddForm,
