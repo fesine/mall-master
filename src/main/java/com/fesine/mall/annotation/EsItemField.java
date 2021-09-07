@@ -1,5 +1,7 @@
 package com.fesine.mall.annotation;
 
+import com.fesine.mall.annotation.entity.ItemDTO;
+
 import java.lang.annotation.*;
 
 /**
@@ -19,8 +21,11 @@ public @interface EsItemField {
      * 配置对应的map key
      * 传递获取值使用key.value
      * ->value表示一层传递，如有多层传递使用key->value->value
-     * map = metricsData.iter
-     * @return map.get(itemKey)
+     * @return metricsData.get(metricsData.get(itemKey))
+     * 对对象取值可用.
+     * A.b(要求b为metricsData对象的subMap)
+     * subMap = metricsData.get(A)
+     * return subMap.get(b)
      */
     String itemKey();
 
@@ -37,4 +42,10 @@ public @interface EsItemField {
      * @return
      */
     String dateFormat() default "";
+
+    /**
+     * 引用类型类,需要继承ItemDTO类
+     * @return
+     */
+    Class<? extends ItemDTO> reference() default ItemDTO.class;
 }

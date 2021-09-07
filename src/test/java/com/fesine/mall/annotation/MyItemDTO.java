@@ -7,6 +7,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @description: 类描述
@@ -67,5 +68,48 @@ public class MyItemDTO extends ItemDTO {
 
     @EsItemField(itemKey = "s_name->value->value", expect = "null",fill = "000000")
     private String zip;
+
+    /**
+     * 处理对象引用
+     */
+    @EsItemField(itemKey = "sub")
+    private MySubItemDTO sub;
+
+    /**
+     * 不加注解处理对象引用
+     */
+    private MySubItemDTO subItemDTO;
+
+    /**
+     * 处理List
+     */
+    @EsItemField(itemKey = "subItemList", reference = MySubItemDTO.class)
+    private List<MySubItemDTO> subItemList;
+
+    private String s_name;
+
+    private Double s_money;
+
+    /**
+     * 子对象属性拉平处理
+     */
+
+    @EsItemField(itemKey = "sub.ss_name")
+    private String subName;
+
+    @EsItemField(itemKey = "sub.ss_age", expect = "NaN", fill = "0")
+    private Integer subAge;
+
+    /**
+     * 子对象属性拉平处理
+     */
+
+    @EsItemField(itemKey = "sub.ssub.ss_name")
+    private String ssubName;
+
+    @EsItemField(itemKey = "sub.ssub.ss_age", expect = "NaN", fill = "0")
+    private Integer ssubAge;
+
+
 
 }

@@ -15,10 +15,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @description: 处理注解工具类
@@ -94,25 +91,7 @@ public class MetricsAnnotationParseUtil {
             }
         }else{
             for (Map<String, Object> itemMap : mapList) {
-                Object object = itemClass.newInstance();
-                //获取所有的属性
-                Field[] itemField = itemClass.getDeclaredFields();
-                for (Field field : itemField) {
-                    EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
-                    if (fieldAnnotation != null) {
-                        String itemKey = fieldAnnotation.itemKey();
-                        if(itemKey.endsWith("->value")){
-                            String[] itemArr = itemKey.split("->");
-                            itemKey = itemArr[0];
-                            for (int i = 1; i < itemArr.length; i++) {
-                                itemKey = String.valueOf(itemMap.get(itemKey));
-                            }
-                        }
-                        Object value = itemMap.get(itemKey);
-                        setFieldValue(object, field, value, fieldAnnotation);
-                    }
-                }
-                objectList.add((ItemDTO) object);
+                objectList.add((ItemDTO) fillPropertyValue(itemClass, itemMap));
             }
         }
         t.setItemList(objectList);
@@ -149,28 +128,113 @@ public class MetricsAnnotationParseUtil {
             return result;
         }else{
             for (Map<String, Object> itemMap : list) {
-                Object object = itemClass.newInstance();
-                //获取所有的属性
-                Field[] itemField = itemClass.getDeclaredFields();
-                for (Field field : itemField) {
-                    EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
-                    if (fieldAnnotation != null) {
-                        String itemKey = fieldAnnotation.itemKey();
-                        if(itemKey.endsWith("->value")){
-                            String[] itemArr = itemKey.split("->");
-                            itemKey = itemArr[0];
-                            for (int i = 1; i < itemArr.length; i++) {
-                                itemKey = String.valueOf(itemMap.get(itemKey));
-                            }
-                        }
-                        Object value = itemMap.get(itemKey);
-                        setFieldValue(object, field, value, fieldAnnotation);
-                    }
-                }
-                result.add((T) object);
+                result.add((T) fillPropertyValue(itemClass, itemMap));
             }
         }
         return result;
+    }
+
+    private static Object fillPropertyValue(Class itemClass, Map<String, Object> itemMap) throws Exception {
+        Object object = itemClass.newInstance();
+        //获取所有的属性
+        List<Field> itemField = getAllField(itemClass);
+        for (Field field : itemField) {
+            EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
+            if (fieldAnnotation != null) {
+                String itemKey = fieldAnnotation.itemKey();
+                //处理传递赋值
+                if (itemKey.endsWith("->value")) {
+                    String[] itemArr = itemKey.split("->");
+                    itemKey = itemArr[0];
+                    for (int i = 1; i < itemArr.length; i++) {
+                        itemKey = String.valueOf(itemMap.get(itemKey));
+                    }
+                }
+                //处理属性拉平赋值
+                if(itemKey.contains(".")){
+                    String[] itemArr = itemKey.split("\\.");
+                    itemKey = itemArr[0];
+                    Object o = itemMap.get(itemKey);
+                    for (int i = 1; i < itemArr.length; i++) {
+                        itemKey = itemArr[i];
+                        if(o instanceof Map){
+                            o = ((Map<String, Object>) o).get(itemKey);
+                            continue;
+                        }
+                        break;
+                    }
+
+                    if (o != null) {
+                        setFieldValue(object, field, o, fieldAnnotation);
+                    }
+                    continue;
+                }
+                Object value = itemMap.get(itemKey);
+                //处理对象属性
+                if (fillItemDtoValue(object, field, value)) {
+                    continue;
+                }
+                //处理List对象，满足四个条件
+                if (fillListValue(object, field, fieldAnnotation, value)) {
+                    continue;
+                }
+                setFieldValue(object, field, value, fieldAnnotation);
+            }else{
+                String itemKey = field.getName();
+                Object value = itemMap.get(itemKey);
+                //处理对象属性
+                if (fillItemDtoValue(object, field, value)) {
+                    continue;
+                }
+                setFieldValue(object, field, value);
+            }
+        }
+        return object;
+    }
+
+    /**
+     * 处理List对象，满足四个条件
+     * @param object
+     * @param field
+     * @param fieldAnnotation
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    private static boolean fillListValue(Object object, Field field, EsItemField fieldAnnotation,
+                                         Object value) throws Exception {
+        if (value instanceof List
+                && List.class.isAssignableFrom(field.getType())
+                && !StringUtils.isEmpty(fieldAnnotation.reference())
+                && ItemDTO.class.isAssignableFrom(fieldAnnotation.reference())) {
+            List<Map<String, Object>> mapList = (List<Map<String, Object>>) value;
+            ItemDTO itemDTO = fieldAnnotation.reference().newInstance();
+            List<ItemDTO> dtoList = parseToItemList(itemDTO, mapList);
+            field.setAccessible(true);
+            field.set(object, dtoList);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 处理对象属性赋值
+     * @param object
+     * @param field
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    private static boolean fillItemDtoValue(Object object, Field field, Object value) throws Exception {
+        //需要满足两个条件，一是value为map，二是属性继承自ItemDTO
+        if (value instanceof Map && ItemDTO.class.isAssignableFrom(field.getType())) {
+            ItemDTO itemDTO = (ItemDTO) field.getType().newInstance();
+            itemDTO = parseToItemDTO(itemDTO, (Map<String, Object>) value);
+            field.setAccessible(true);
+            field.set(object, itemDTO);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -186,24 +250,21 @@ public class MetricsAnnotationParseUtil {
         if (cls.equals(ItemDTO.class)) {
             throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
         }
-        //获取所有的属性
-        Field[] itemField = cls.getDeclaredFields();
-        for (Field field : itemField) {
-            EsItemField fieldAnnotation = field.getAnnotation(EsItemField.class);
-            if (fieldAnnotation != null) {
-                String itemKey = fieldAnnotation.itemKey();
-                if (itemKey.endsWith("->value")) {
-                    String[] itemArr = itemKey.split("->");
-                    itemKey = itemArr[0];
-                    for (int i = 1; i < itemArr.length; i++) {
-                        itemKey = String.valueOf(map.get(itemKey));
-                    }
-                }
-                Object value = map.get(itemKey);
-                setFieldValue(t, field, value, fieldAnnotation);
-            }
-        }
-        return t;
+        return (T)fillPropertyValue(cls, map);
+    }
+
+    /**
+     * 无注解赋值
+     * @param object
+     * @param field
+     * @param value
+     * @throws IllegalAccessException
+     */
+    private static void setFieldValue(Object object, Field field, Object value) throws Exception {
+        field.setAccessible(true);
+        Object o = getObjectField(field, value+"");
+        field.set(object,o);
+
     }
 
     /**
@@ -250,4 +311,12 @@ public class MetricsAnnotationParseUtil {
         return obj;
     }
 
+    private static List<Field> getAllField(Class clazz) {
+        List<Field> fields = new ArrayList<>();
+        while (clazz != null) {
+            fields.addAll(new ArrayList<>(Arrays.asList(clazz.getDeclaredFields())));
+            clazz = clazz.getSuperclass();
+        }
+        return fields;
+    }
 }
