@@ -42,10 +42,10 @@ public class MyItemDTO extends ItemDTO {
     @EsItemField(itemKey = "s_age", expect = "NaN", fill = "0")
     private Short sage;
 
-    @EsItemField(itemKey = "s_money")
+    @EsItemField(itemKey = "s_money",numberScale = 2)
     private BigDecimal money;
 
-    @EsItemField(itemKey = "s_money")
+    @EsItemField(itemKey = "s_money", numberScale = 0)
     private Float moneyf;
 
     @EsItemField(itemKey = "s_sex")

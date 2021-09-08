@@ -35,7 +35,7 @@ public class MetricsTest {
         subMap.put("s_character", "NaN");
         subMap.put("s_height", "170");
         subMap.put("s_heavy", "75.5");
-        subMap.put("s_money", "3999.82");
+        subMap.put("s_money", "3999.989882");
         subMap.put("fesine", "浙江杭州");
         subMap.put("浙江杭州", "310000");
         subMap.put("s_createTime", "2021-09-02T00:51+08:00[Asia/Shanghai]");
@@ -56,7 +56,7 @@ public class MetricsTest {
         subMap2.put("s_sex", "true");
         subMap2.put("s_height", "170");
         subMap2.put("s_heavy", "75.5");
-        subMap2.put("s_money", "3999.82");
+        subMap2.put("s_money", "139199.81682");
         subMap2.put("dap", "江苏无锡");
         subMap2.put("s_createTime", "2021-09-02T00:52+08:00[Asia/Shanghai]");
         //subMap2.put("江苏无锡", "213000");

@@ -5,6 +5,7 @@ import com.fesine.mall.annotation.EsMetricsField;
 import com.fesine.mall.annotation.entity.DynamicItemDTO;
 import com.fesine.mall.annotation.entity.ItemDTO;
 import com.fesine.mall.annotation.entity.MetricsDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -12,8 +13,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -25,9 +28,10 @@ import java.util.*;
  * @author: fesine
  * @updateTime:2021/6/23
  */
+@Slf4j
 public class MetricsAnnotationParseUtil {
 
-    private static final String nullValue = "null";
+    private static final String NULL_VALUE = "null";
 
     /**
      * 转换map到dto
@@ -268,17 +272,16 @@ public class MetricsAnnotationParseUtil {
     }
 
     /**
-     * 目前只支持String类型，后续再扩展其他类型
-     * @param object
-     * @param field
-     * @param value
+     * 扩展其他类型赋值 * 支持包装类型，如Integer、Short、Long、Float、Double、Boolean *
+     * 日期类型支持，LocalDate、LocalDateTime、LocalTime 不支持Date类型 *
+     * 不支持基本数据类型如int、shot、long、byte、double、float * @param object * @param field * @param value *
      * @throws IllegalAccessException
      */
-    private static void setFieldValue(Object object, Field field, Object value, EsItemField esItemField) throws Exception {
+    private static void setFieldValue(Object object, Field field, Object value, EsItemField esItemField) {
         field.setAccessible(true);
         //处理默认值转换
         String expect = esItemField.expect();
-        if ((nullValue.equals(expect) && value == null) || expect.equals(value)) {
+        if ((NULL_VALUE.equals(expect) && value == null) || expect.equals(value)) {
             value = esItemField.fill();
         }
         if (value == null) {
@@ -286,19 +289,33 @@ public class MetricsAnnotationParseUtil {
         }
         //处理日期转换
         String dateFormat = esItemField.dateFormat();
-        if(!StringUtils.isEmpty(dateFormat)){
-            Class<?> type = field.getType();
+        Class<?> type = field.getType();
+        if (!StringUtils.isEmpty(dateFormat)) {
             if (type.equals(LocalDate.class)) {
-                value = LocalDate.parse(value.toString(),DateTimeFormatter.ofPattern(dateFormat));
-            }else if (type.equals(LocalDateTime.class)) {
+                value = LocalDate.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
+            } else if (type.equals(LocalDateTime.class)) {
                 value = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
+            } else if (type.equals(LocalTime.class)) {
+                value = LocalTime.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
             }
-            field.set(object, value);
+            try {
+                field.set(object, value);
+            } catch (IllegalAccessException e) {
+                log.error("can not set field [{}] value [{}],exception message={}", field.getName(), value, e.getMessage());
+            }
             return;
         }
-        Object o = getObjectField(field, value);
-        field.set(object,o);
-
+        int scale = esItemField.numberScale();
+        if (scale != -1 && (type.equals(BigDecimal.class) || type.equals(Double.class) || type.equals(Float.class))) {
+            //进行小数点处理
+            value = new BigDecimal(value + "").setScale(scale, BigDecimal.ROUND_HALF_UP) + "";
+        }
+        try {
+            Object o = getObjectField(field, value);
+            field.set(object, o);
+        } catch (Exception e) {
+            log.error("can not set field [{}] value [{}],exception message={}", field.getName(), value, e.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")

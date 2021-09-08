@@ -44,6 +44,12 @@ public @interface EsItemField {
     String dateFormat() default "";
 
     /**
+     * 针对Double、Float、BigDecimal类型小数部分进行格式化(四舍五入)
+     * @return
+     */
+    int numberScale() default  -1;
+
+    /**
      * 引用类型类,需要继承ItemDTO类
      * @return
      */
