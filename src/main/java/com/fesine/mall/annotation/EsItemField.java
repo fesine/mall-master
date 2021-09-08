@@ -38,7 +38,25 @@ public @interface EsItemField {
     String fill() default "";
 
     /**
+     * 本地时区
+     * @return
+     */
+    String locale() default "";
+
+    /**
+     * 目标时区
+     * @return
+     */
+    String timezone() default "";
+
+    /**
      * 返回值是日期字符串时，进行日期转换
+     * @return
+     */
+    String pattern() default "";
+
+    /**
+     * 属性为String类型，返回值是日期字符串时，进行利用pattern日期转换，再格式化成String类型
      * @return
      */
     String dateFormat() default "";
@@ -54,4 +72,6 @@ public @interface EsItemField {
      * @return
      */
     Class<? extends ItemDTO> reference() default ItemDTO.class;
+
+    boolean instance() default false;
 }

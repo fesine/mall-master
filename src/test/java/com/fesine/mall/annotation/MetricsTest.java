@@ -39,6 +39,7 @@ public class MetricsTest {
         subMap.put("fesine", "浙江杭州");
         subMap.put("浙江杭州", "310000");
         subMap.put("s_createTime", "2021-09-02T00:51+08:00[Asia/Shanghai]");
+        subMap.put("s_createDate", "2016-09-02");
         Map<String, Object> ssubMap1 = new HashMap<>();
         ssubMap1.put("ss_name", "fesine-sub");
         ssubMap1.put("ss_age", "36");
@@ -59,6 +60,7 @@ public class MetricsTest {
         subMap2.put("s_money", "139199.81682");
         subMap2.put("dap", "江苏无锡");
         subMap2.put("s_createTime", "2021-09-02T00:52+08:00[Asia/Shanghai]");
+        subMap2.put("s_createDate", "2021-09-02");
         //subMap2.put("江苏无锡", "213000");
         Map<String, Object> ssubMap2 = new HashMap<>();
         ssubMap2.put("ss_name", "dap-sub");
@@ -85,15 +87,5 @@ public class MetricsTest {
         itemDTO = MetricsAnnotationParseUtil.parseToItemDTO(itemDTO, subMap);
         List<MyItemDTO> list = MetricsAnnotationParseUtil.parseToItemList(new MyItemDTO(), mapList);
         System.out.println();
-        //List myItemDTOList = new ArrayList<MyItemDTO>();
-        //Type type = myItemDTOList.getClass().getGenericSuperclass();
-        //if (type instanceof ParameterizedType) {
-        //    // 当前集合的泛型类型
-        //    ParameterizedType pt = (ParameterizedType) type;
-        //    // 得到泛型里的class类型对象
-        //    Type[] actualTypeArguments = pt.getActualTypeArguments();
-        //    Class<?> itemClass = (Class<?>) actualTypeArguments[0];
-        //    System.out.println();
-        //}
     }
 }

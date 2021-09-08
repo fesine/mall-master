@@ -8,15 +8,11 @@ import com.fesine.mall.annotation.entity.MetricsDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -95,7 +91,7 @@ public class MetricsAnnotationParseUtil {
             }
         }else{
             for (Map<String, Object> itemMap : mapList) {
-                objectList.add((ItemDTO) fillPropertyValue(itemClass, itemMap));
+                objectList.add((ItemDTO) fillPropertyValue((ItemDTO)itemClass.newInstance(),itemClass, itemMap));
             }
         }
         t.setItemList(objectList);
@@ -132,13 +128,13 @@ public class MetricsAnnotationParseUtil {
             return result;
         }else{
             for (Map<String, Object> itemMap : list) {
-                result.add((T) fillPropertyValue(itemClass, itemMap));
+                result.add((T) fillPropertyValue(t,itemClass, itemMap));
             }
         }
         return result;
     }
 
-    private static Object fillPropertyValue(Class itemClass, Map<String, Object> itemMap) throws Exception {
+    private static <T extends ItemDTO> Object fillPropertyValue(T t,Class itemClass, Map<String, Object> itemMap) throws Exception {
         Object object = itemClass.newInstance();
         //获取所有的属性
         List<Field> itemField = getAllField(itemClass);
@@ -175,7 +171,7 @@ public class MetricsAnnotationParseUtil {
                 }
                 Object value = itemMap.get(itemKey);
                 //处理对象属性
-                if (fillItemDtoValue(object, field, value)) {
+                if (fillItemDtoValue(t,object, field, value)) {
                     continue;
                 }
                 //处理List对象，满足四个条件
@@ -187,7 +183,7 @@ public class MetricsAnnotationParseUtil {
                 String itemKey = field.getName();
                 Object value = itemMap.get(itemKey);
                 //处理对象属性
-                if (fillItemDtoValue(object, field, value)) {
+                if (fillItemDtoValue(t,object, field, value)) {
                     continue;
                 }
                 setFieldValue(object, field, value);
@@ -229,10 +225,19 @@ public class MetricsAnnotationParseUtil {
      * @return
      * @throws Exception
      */
-    private static boolean fillItemDtoValue(Object object, Field field, Object value) throws Exception {
+    private static <T extends ItemDTO> boolean fillItemDtoValue(T t,Object object, Field field, Object value) throws Exception {
         //需要满足两个条件，一是value为map，二是属性继承自ItemDTO
         if (value instanceof Map && ItemDTO.class.isAssignableFrom(field.getType())) {
-            ItemDTO itemDTO = (ItemDTO) field.getType().newInstance();
+            ItemDTO itemDTO;
+            if (field.getAnnotation(EsItemField.class) != null
+                    && field.getAnnotation(EsItemField.class).instance()) {
+                PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(),
+                        t.getClass());
+                Method readMethod = descriptor.getReadMethod();
+                itemDTO = (ItemDTO) readMethod.invoke(t);
+            }else{
+                itemDTO = (ItemDTO) field.getType().newInstance();
+            }
             itemDTO = parseToItemDTO(itemDTO, (Map<String, Object>) value);
             field.setAccessible(true);
             field.set(object, itemDTO);
@@ -249,12 +254,16 @@ public class MetricsAnnotationParseUtil {
      * @return
      * @throws Exception
      */
-    public static<T extends ItemDTO> T parseToItemDTO(T t,Map<String, Object> map) throws Exception {
+    public static<T extends ItemDTO> T parseToItemDTO(T t, Map<String, Object> map) throws Exception {
+        if (t == null|| map == null || map.size() == 0) {
+            return t;
+        }
         Class cls = t.getClass();
         if (cls.equals(ItemDTO.class)) {
-            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
+            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName()
+                    + "]添加继承ItemDTO类的属性类。");
         }
-        return (T)fillPropertyValue(cls, map);
+        return (T)fillPropertyValue(t,cls, map);
     }
 
     /**
@@ -288,15 +297,41 @@ public class MetricsAnnotationParseUtil {
             return;
         }
         //处理日期转换
-        String dateFormat = esItemField.dateFormat();
+        String pattern = esItemField.pattern();
         Class<?> type = field.getType();
-        if (!StringUtils.isEmpty(dateFormat)) {
-            if (type.equals(LocalDate.class)) {
-                value = LocalDate.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
-            } else if (type.equals(LocalDateTime.class)) {
-                value = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
-            } else if (type.equals(LocalTime.class)) {
-                value = LocalTime.parse(value.toString(), DateTimeFormatter.ofPattern(dateFormat));
+        if (!StringUtils.isEmpty(pattern)) {
+            String locale = esItemField.locale();
+            String timezone = esItemField.timezone();
+            ZoneId curZone = OffsetDateTime.now().getOffset();
+            if(!StringUtils.isEmpty(locale)){
+                curZone = ZoneId.of(locale);
+            }
+            ZoneId newZone = OffsetDateTime.now().getOffset();
+            if(!StringUtils.isEmpty(timezone)){
+                newZone = ZoneId.of(timezone);
+            }
+            if (type.equals(LocalDateTime.class) || type.equals(String.class)) {
+                LocalDateTime parse = LocalDateTime.parse(value.toString(),
+                        DateTimeFormatter.ofPattern(pattern));
+                parse = parse.atZone(curZone).withZoneSameInstant(newZone).toLocalDateTime();
+                //如果field是String类型，需要使用dateFormat格式化,对LocalDateTime值进行格式化
+                if (type.equals(String.class)) {
+                    String dateFormat = esItemField.dateFormat();
+                    if (!StringUtils.isEmpty(dateFormat)) {
+                        value = parse.format(DateTimeFormatter.ofPattern(dateFormat));
+                    } else {
+                        value = parse.toString();
+                    }
+                } else {
+                    value = parse;
+                }
+            } else if (type.equals(LocalDate.class)) {
+                LocalDate parse = LocalDate.parse(value.toString(),
+                        DateTimeFormatter.ofPattern(pattern));
+                value = parse.atStartOfDay(curZone).withZoneSameInstant(newZone).toLocalDate();
+            } else  if (type.equals(LocalTime.class)) {
+                //LocalTime 没有时区概念，不处理
+                value = LocalTime.parse(value.toString(),DateTimeFormatter.ofPattern(pattern));
             }
             try {
                 field.set(object, value);
@@ -311,12 +346,18 @@ public class MetricsAnnotationParseUtil {
             value = new BigDecimal(value + "").setScale(scale, BigDecimal.ROUND_HALF_UP) + "";
         }
         try {
-            Object o = getObjectField(field, value);
+            if (field.getType().equals(value.getClass())) {
+                field.set(object, value);
+                return;
+            }
+            //其他类型均转换value为String类型
+            Object o = getObjectField(field, value+"");
             field.set(object, o);
         } catch (Exception e) {
             log.error("can not set field [{}] value [{}],exception message={}", field.getName(), value, e.getMessage());
         }
     }
+
 
     @SuppressWarnings("unchecked")
     public static Object getObjectField(Field field, Object value) throws Exception {

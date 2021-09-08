@@ -51,14 +51,38 @@ public class MyItemDTO extends ItemDTO {
     @EsItemField(itemKey = "s_sex")
     private Boolean sex;
 
-    @EsItemField(itemKey = "s_birthday",dateFormat = "yyyy-MM-dd")
+    @EsItemField(itemKey = "s_birthday", pattern = "yyyy-MM-dd",locale ="GMT+0",timezone = "GMT+8")
     @JsonFormat(timezone = "GMT+8",pattern = "yyyyMMdd")
     private LocalDate birthday;
 
-    @EsItemField(itemKey = "s_createTime",dateFormat = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'")
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy年MM月dd日 HH:mm:ss.SSS")
+    @EsItemField(itemKey = "s_createTime", pattern = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'")
     private LocalDateTime createTime;
 
+    @EsItemField(itemKey = "s_createDate", pattern = "yyyy-MM-dd")
+    private LocalDate createDate;
+
+    @EsItemField(itemKey = "s_createTime",
+            pattern = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'",
+            locale = "GMT+0",timezone = "GMT+8"
+    )
+    private LocalDateTime createTimeZone;
+
+    @EsItemField(itemKey = "s_createTime",
+            pattern = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'",
+            dateFormat = "yyyy-MM-dd HH:mm:ss"
+    )
+    private String createTimeString;
+
+    @EsItemField(itemKey = "s_createTime",
+            pattern = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'",
+            locale = "GMT+0", timezone = "GMT+8",
+            dateFormat = "yyyy-MM-dd HH:mm:ss"
+    )
+    private String createTimeZoneString;
+
+    @EsItemField(itemKey = "s_createDate", pattern = "yyyy-MM-dd",
+            locale = "GMT+0", timezone = "GMT+8")
+    private LocalDate createDateZone;
 
     /**
      * address是由name的值作为key再取出的值
@@ -72,7 +96,7 @@ public class MyItemDTO extends ItemDTO {
     /**
      * 处理对象引用
      */
-    @EsItemField(itemKey = "sub")
+    @EsItemField(itemKey = "sub",instance = true)
     private MySubItemDTO sub;
 
     /**
