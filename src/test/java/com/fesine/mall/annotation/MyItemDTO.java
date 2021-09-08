@@ -69,6 +69,12 @@ public class MyItemDTO extends ItemDTO {
 
     @EsItemField(itemKey = "s_createTime",
             pattern = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'",
+            locale = "GMT+1",timezone = "GMT+8"
+    )
+    private LocalDateTime createTimeZone1;
+
+    @EsItemField(itemKey = "s_createTime",
+            pattern = "yyyy-MM-dd'T'HH:mm+08:00'[Asia/Shanghai]'",
             dateFormat = "yyyy-MM-dd HH:mm:ss"
     )
     private String createTimeString;
