@@ -151,8 +151,8 @@ public class MetricsAnnotationParseUtil {
                     }
                 }
                 //处理属性拉平赋值
-                if(itemKey.contains(".")){
-                    String[] itemArr = itemKey.split("\\.");
+                if(itemKey.contains("=>")){
+                    String[] itemArr = itemKey.split("=>");
                     itemKey = itemArr[0];
                     Object o = itemMap.get(itemKey);
                     for (int i = 1; i < itemArr.length; i++) {
