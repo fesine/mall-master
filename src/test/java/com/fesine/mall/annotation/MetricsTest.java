@@ -1,9 +1,11 @@
 package com.fesine.mall.annotation;
 
+import com.alibaba.fastjson.JSON;
 import com.fesine.mall.annotation.entity.DynamicItemDTO;
 import com.fesine.mall.annotation.entity.ItemDTO;
 import com.fesine.mall.annotation.entity.MetricsDTO;
 import com.fesine.mall.annotation.util.MetricsAnnotationParseUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +20,7 @@ import java.util.Map;
  * @author: fesine
  * @updateTime:2021/6/23
  */
+@Slf4j
 public class MetricsTest {
 
     public static void main(String[] args) throws Exception {
@@ -27,7 +30,7 @@ public class MetricsTest {
         map.put("s_ip", mapList);
         Map<String, Object> subMap = new HashMap<>();
         Map<String, Object> subMap2 = new HashMap<>();
-        subMap.put("s_name", "fesine");
+        subMap.put("#s_name", "fesine");
         subMap.put("s_sex", "false");
         subMap.put("s_age", "NaN");
         subMap.put("s_birthday", "1994-08-08");
@@ -47,9 +50,9 @@ public class MetricsTest {
         ssubMap3.put("ss_name", "test-ssub");
         ssubMap3.put("ss_age", "66");
         ssubMap1.put("ssub", ssubMap3);
-        subMap.put("sub", ssubMap1);
+        subMap.put("#sub", ssubMap1);
         subMap.put("subItemDTO", ssubMap1);
-        subMap2.put("s_name", "dap");
+        subMap2.put("#s_name", "dap");
         subMap2.put("s_age", "30");
         subMap2.put("s_birthday", "2002-10-01");
         //subMap2.put("s_married", "1");
@@ -69,7 +72,7 @@ public class MetricsTest {
         ssubMap4.put("ss_name", "test-ss-ssub");
         ssubMap4.put("ss_age", "88");
         ssubMap2.put("ssub", ssubMap4);
-        subMap2.put("sub", ssubMap2);
+        subMap2.put("#sub", ssubMap2);
         subMap2.put("subItemDTO", ssubMap2);
         mapList.add(subMap);
         mapList.add(subMap2);
@@ -78,6 +81,7 @@ public class MetricsTest {
         subItemList.add(ssubMap2);
         subMap.put("subItemList", subItemList);
         subMap2.put("subItemList", subItemList);
+        log.info("------>{}", JSON.toJSONString(map));
         MyMetricsDTO mymetricsDTO = (MyMetricsDTO)MetricsAnnotationParseUtil.parseToDTO(metricsDTO, map);
         System.out.println(mymetricsDTO);
         MetricsDTO<DynamicItemDTO> dynamicItemDTOMetricsDTO = new MyDynamicMetricsDTO();
@@ -85,7 +89,9 @@ public class MetricsTest {
                 , map);
         ItemDTO itemDTO = new MyItemDTO();
         itemDTO = MetricsAnnotationParseUtil.parseToItemDTO(itemDTO, subMap);
-        List<MyItemDTO> list = MetricsAnnotationParseUtil.parseToItemList(new MyItemDTO(), mapList);
+        MyItemDTO myItemDTO = new MyItemDTO();
+        myItemDTO.setSub(new MySubItemDTO());
+        List<MyItemDTO> list = MetricsAnnotationParseUtil.parseToItemList(myItemDTO, mapList);
         System.out.println();
     }
 }

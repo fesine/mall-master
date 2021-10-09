@@ -74,4 +74,10 @@ public @interface EsItemField {
     Class<? extends ItemDTO> reference() default ItemDTO.class;
 
     boolean instance() default false;
+
+    /**
+     * 返回值是否是包含类型
+     * @return
+     */
+    boolean hasType() default false;
 }

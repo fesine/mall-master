@@ -21,10 +21,10 @@ import java.util.List;
 @Data
 public class MyItemDTO extends ItemDTO {
 
-    @EsItemField(itemKey = "s_name")
+    @EsItemField(itemKey = "s_name",hasType = true)
     private String name;
 
-    @EsItemField(itemKey = "s_age", expect = "NaN", fill = "0")
+    @EsItemField(itemKey = "s_age", expect = "NaN", fill = "0", hasType = true)
     private Integer age;
 
     @EsItemField(itemKey = "s_married" , expect="null", fill = "1")
@@ -93,16 +93,16 @@ public class MyItemDTO extends ItemDTO {
     /**
      * address是由name的值作为key再取出的值
      */
-    @EsItemField(itemKey = "s_name->value")
+    @EsItemField(itemKey = "s_name->value", hasType = true)
     private String  address;
 
-    @EsItemField(itemKey = "s_name->value->value", expect = "null",fill = "000000")
+    @EsItemField(itemKey = "s_name->value->value", expect = "null",fill = "000000", hasType = true)
     private String zip;
 
     /**
      * 处理对象引用
      */
-    @EsItemField(itemKey = "sub",instance = true)
+    @EsItemField(itemKey = "sub",instance = true,hasType = true)
     private MySubItemDTO sub;
 
     /**
@@ -124,20 +124,20 @@ public class MyItemDTO extends ItemDTO {
      * 子对象属性拉平处理
      */
 
-    @EsItemField(itemKey = "sub.ss_name")
+    @EsItemField(itemKey = "sub=>ss_name", hasType = true)
     private String subName;
 
-    @EsItemField(itemKey = "sub.ss_age", expect = "NaN", fill = "0")
+    @EsItemField(itemKey = "sub=>ss_age", expect = "NaN", fill = "0", hasType = true)
     private Integer subAge;
 
     /**
      * 子对象属性拉平处理
      */
 
-    @EsItemField(itemKey = "sub.ssub.ss_name")
+    @EsItemField(itemKey = "sub=>ssub=>ss_name", hasType = true)
     private String ssubName;
 
-    @EsItemField(itemKey = "sub.ssub.ss_age", expect = "NaN", fill = "0")
+    @EsItemField(itemKey = "sub=>ssub=>ss_age", expect = "NaN", fill = "0", hasType = true)
     private Integer ssubAge;
 
 

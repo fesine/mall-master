@@ -1,5 +1,6 @@
 package com.fesine.mall.annotation.util;
 
+import com.alibaba.fastjson.JSON;
 import com.fesine.mall.annotation.EsItemField;
 import com.fesine.mall.annotation.EsMetricsField;
 import com.fesine.mall.annotation.entity.DynamicItemDTO;
@@ -28,27 +29,32 @@ import java.util.*;
 public class MetricsAnnotationParseUtil {
 
     private static final String NULL_VALUE = "null";
+    private static final String TYPE_SPLIT = "#";
+    private static final String RECURSION_VALUE = "->value";
+    private static final String RECURSION_SPLIT = "->";
+    private static final String PROPERTY_SPLIT = "=>";
 
     /**
      * 转换map到dto
+     *
      * @param t
      * @param map
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static<T extends MetricsDTO> T parseToDTO(T t,Map<String, List<Map<String, Object>>> map) throws Exception {
+    public static <T extends MetricsDTO> T parseToDTO(T t, Map<String, List<Map<String, Object>>> map) throws Exception {
         Class cls = t.getClass();
         //获取注解
         Annotation[] annotations = cls.getAnnotations();
-        if(annotations == null || annotations.length == 0){
-           throw new IllegalArgumentException(t.getClass().getSimpleName()+"没有配置注解。");
+        if (annotations == null || annotations.length == 0) {
+            throw new IllegalArgumentException(t.getClass().getSimpleName() + "没有配置注解。");
         }
         boolean hasMetricsDataAnnotation = false;
         String groupBy = null;
         for (Annotation annotation : annotations) {
             //判断是否包含有MetricsData注解
-            if (annotation.annotationType().equals(EsMetricsField.class)){
+            if (annotation.annotationType().equals(EsMetricsField.class)) {
                 hasMetricsDataAnnotation = true;
                 //获取groupBy
                 groupBy = ((EsMetricsField) annotation).groupBy();
@@ -56,10 +62,10 @@ public class MetricsAnnotationParseUtil {
             }
         }
         if (!hasMetricsDataAnnotation) {
-            throw new IllegalArgumentException("请为["+t.getClass().getSimpleName() + "]配置@MetricsData注解。");
+            throw new IllegalArgumentException("请为[" + t.getClass().getSimpleName() + "]配置@MetricsData注解。");
         }
         if (StringUtils.isEmpty(groupBy)) {
-            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() +
+            throw new IllegalArgumentException("请为[" + t.getClass().getSimpleName() +
                     "]@MetricsData注解填写groupBy值。");
         }
         //获取列表属性
@@ -74,24 +80,24 @@ public class MetricsAnnotationParseUtil {
 
         }
         if (itemClass.equals(ItemDTO.class)) {
-            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
+            throw new IllegalArgumentException("请为[" + t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
         }
         List<Map<String, Object>> mapList = map.get(groupBy);
         //继续处理item
         List<ItemDTO> objectList = new ArrayList<>();
-        if(itemClass.equals(DynamicItemDTO.class)){
+        if (itemClass.equals(DynamicItemDTO.class)) {
             for (Map<String, Object> itemMap : mapList) {
                 //添加动态对象，map只有一个元素
-                DynamicItemDTO object = (DynamicItemDTO)itemClass.newInstance();
+                DynamicItemDTO object = (DynamicItemDTO) itemClass.newInstance();
                 Iterator<Map.Entry<String, Object>> iterator = itemMap.entrySet().iterator();
                 Map.Entry<String, Object> next = iterator.next();
                 object.setKey(next.getKey());
                 object.setValue(next.getValue());
                 objectList.add(object);
             }
-        }else{
+        } else {
             for (Map<String, Object> itemMap : mapList) {
-                objectList.add((ItemDTO) fillPropertyValue((ItemDTO)itemClass.newInstance(),itemClass, itemMap));
+                objectList.add((ItemDTO) fillPropertyValue((ItemDTO) itemClass.newInstance(), itemClass, itemMap));
             }
         }
         t.setItemList(objectList);
@@ -101,40 +107,41 @@ public class MetricsAnnotationParseUtil {
 
     /**
      * 转换mapList to itemList
+     *
      * @param t
      * @param list
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static <T extends ItemDTO>  List<T> parseToItemList(T t,List<Map<String, Object>> list) throws Exception {
+    public static <T extends ItemDTO> List<T> parseToItemList(T t, List<Map<String, Object>> list) throws Exception {
         Class itemClass = t.getClass();
         //获取列表属性
         if (itemClass.equals(ItemDTO.class)) {
-            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
+            throw new IllegalArgumentException("请为[" + t.getClass().getSimpleName() + "]添加继承ItemDTO类的属性类。");
         }
         List<T> result = new ArrayList<>();
         //继续处理item
-        if(itemClass.equals(DynamicItemDTO.class)){
+        if (itemClass.equals(DynamicItemDTO.class)) {
             for (Map<String, Object> itemMap : list) {
                 //添加动态对象，map只有一个元素
-                DynamicItemDTO object = (DynamicItemDTO)itemClass.newInstance();
+                DynamicItemDTO object = (DynamicItemDTO) itemClass.newInstance();
                 Iterator<Map.Entry<String, Object>> iterator = itemMap.entrySet().iterator();
                 Map.Entry<String, Object> next = iterator.next();
                 object.setKey(next.getKey());
                 object.setValue(next.getValue());
-                result.add((T)object);
+                result.add((T) object);
             }
             return result;
-        }else{
+        } else {
             for (Map<String, Object> itemMap : list) {
-                result.add((T) fillPropertyValue(t,itemClass, itemMap));
+                result.add((T) fillPropertyValue(t, itemClass, itemMap));
             }
         }
         return result;
     }
 
-    private static <T extends ItemDTO> Object fillPropertyValue(T t,Class itemClass, Map<String, Object> itemMap) throws Exception {
+    private static <T extends ItemDTO> Object fillPropertyValue(T t, Class itemClass, Map<String, Object> itemMap) throws Exception {
         Object object = itemClass.newInstance();
         //获取所有的属性
         List<Field> itemField = getAllField(itemClass);
@@ -143,35 +150,46 @@ public class MetricsAnnotationParseUtil {
             if (fieldAnnotation != null) {
                 String itemKey = fieldAnnotation.itemKey();
                 //处理传递赋值
-                if (itemKey.endsWith("->value")) {
-                    String[] itemArr = itemKey.split("->");
+                if (itemKey.endsWith(RECURSION_VALUE)) {
+                    String[] itemArr = itemKey.split(RECURSION_SPLIT);
                     itemKey = itemArr[0];
+                    Object o = getObjectValueIfHasType(itemMap, fieldAnnotation, itemKey);
                     for (int i = 1; i < itemArr.length; i++) {
-                        itemKey = String.valueOf(itemMap.get(itemKey));
+                        if (o != null) {
+                            itemKey = String.valueOf(o);
+                            o = itemMap.get(itemKey);
+                        } else {
+                            itemKey = null;
+                            //itemKey为空后，继续循环无意义，直接break
+                            break;
+                        }
                     }
                 }
                 //处理属性拉平赋值
-                if(itemKey.contains("=>")){
-                    String[] itemArr = itemKey.split("=>");
+                if (itemKey.contains(PROPERTY_SPLIT)) {
+                    String[] itemArr = itemKey.split(PROPERTY_SPLIT);
                     itemKey = itemArr[0];
-                    Object o = itemMap.get(itemKey);
+                    Object o = getObjectValueIfHasType(itemMap, fieldAnnotation, itemKey);
                     for (int i = 1; i < itemArr.length; i++) {
+                        //o可能为空，为空则中断循环
+                        if (o == null) {
+                            break;
+                        }
                         itemKey = itemArr[i];
-                        if(o instanceof Map){
+                        if (o instanceof Map) {
                             o = ((Map<String, Object>) o).get(itemKey);
                             continue;
                         }
                         break;
                     }
-
                     if (o != null) {
                         setFieldValue(object, field, o, fieldAnnotation);
                     }
                     continue;
                 }
-                Object value = itemMap.get(itemKey);
+                Object value = getObjectValueIfHasType(itemMap, fieldAnnotation, itemKey);
                 //处理对象属性
-                if (fillItemDtoValue(t,object, field, value)) {
+                if (fillItemDtoValue(t, object, field, value)) {
                     continue;
                 }
                 //处理List对象，满足四个条件
@@ -179,11 +197,11 @@ public class MetricsAnnotationParseUtil {
                     continue;
                 }
                 setFieldValue(object, field, value, fieldAnnotation);
-            }else{
+            } else {
                 String itemKey = field.getName();
                 Object value = itemMap.get(itemKey);
                 //处理对象属性
-                if (fillItemDtoValue(t,object, field, value)) {
+                if (fillItemDtoValue(t, object, field, value)) {
                     continue;
                 }
                 setFieldValue(object, field, value);
@@ -193,7 +211,40 @@ public class MetricsAnnotationParseUtil {
     }
 
     /**
+     * 根据hasType取值
+     *
+     * @param itemMap
+     * @param field
+     * @param itemKey
+     * @return
+     */
+    private static Object getObjectValueIfHasType(Map<String, Object> itemMap, EsItemField field, String itemKey) {
+        Object o = null;
+        //map中包含itemKey，直接取值
+        if (itemMap.containsKey(itemKey)) {
+            o = itemMap.get(itemKey);
+        } else if (field.hasType()) {
+            //map中不包含itemKey，但配置了hasType=true属性，通过后缀取值
+            log.warn("----->map doesn't contains item key [{}]. but annotation set [hasType=true]. try to get value end with [#{}].", itemKey, itemKey);
+            boolean hasValue = false;
+            for (String s : itemMap.keySet()) {
+                if (s.endsWith(TYPE_SPLIT + itemKey)) {
+                    o = itemMap.get(s);
+                    log.info("----->get value end with [#{}] success, the full key is [{}].", itemKey, s);
+                    hasValue = true;
+                    break;
+                }
+            }
+            if (!hasValue) {
+                log.warn("----->get value end with [#{}] from map [{}] failed.", itemKey, JSON.toJSONString(itemMap));
+            }
+        }
+        return o;
+    }
+
+    /**
      * 处理List对象，满足四个条件
+     *
      * @param object
      * @param field
      * @param fieldAnnotation
@@ -219,13 +270,14 @@ public class MetricsAnnotationParseUtil {
 
     /**
      * 处理对象属性赋值
+     *
      * @param object
      * @param field
      * @param value
      * @return
      * @throws Exception
      */
-    private static <T extends ItemDTO> boolean fillItemDtoValue(T t,Object object, Field field, Object value) throws Exception {
+    private static <T extends ItemDTO> boolean fillItemDtoValue(T t, Object object, Field field, Object value) throws Exception {
         //需要满足两个条件，一是value为map，二是属性继承自ItemDTO
         if (value instanceof Map && ItemDTO.class.isAssignableFrom(field.getType())) {
             ItemDTO itemDTO;
@@ -235,7 +287,7 @@ public class MetricsAnnotationParseUtil {
                         t.getClass());
                 Method readMethod = descriptor.getReadMethod();
                 itemDTO = (ItemDTO) readMethod.invoke(t);
-            }else{
+            } else {
                 itemDTO = (ItemDTO) field.getType().newInstance();
             }
             itemDTO = parseToItemDTO(itemDTO, (Map<String, Object>) value);
@@ -248,26 +300,28 @@ public class MetricsAnnotationParseUtil {
 
     /**
      * 转换map to itemDTO
+     *
      * @param t
      * @param map
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static<T extends ItemDTO> T parseToItemDTO(T t, Map<String, Object> map) throws Exception {
-        if (t == null|| map == null || map.size() == 0) {
+    public static <T extends ItemDTO> T parseToItemDTO(T t, Map<String, Object> map) throws Exception {
+        if (t == null || map == null || map.size() == 0) {
             return t;
         }
         Class cls = t.getClass();
         if (cls.equals(ItemDTO.class)) {
-            throw new IllegalArgumentException("请为[" +t.getClass().getSimpleName()
+            throw new IllegalArgumentException("请为[" + t.getClass().getSimpleName()
                     + "]添加继承ItemDTO类的属性类。");
         }
-        return (T)fillPropertyValue(t,cls, map);
+        return (T) fillPropertyValue(t, cls, map);
     }
 
     /**
      * 无注解赋值
+     *
      * @param object
      * @param field
      * @param value
@@ -275,8 +329,8 @@ public class MetricsAnnotationParseUtil {
      */
     private static void setFieldValue(Object object, Field field, Object value) throws Exception {
         field.setAccessible(true);
-        Object o = getObjectField(field, value+"");
-        field.set(object,o);
+        Object o = getObjectField(field, value + "");
+        field.set(object, o);
 
     }
 
@@ -284,6 +338,7 @@ public class MetricsAnnotationParseUtil {
      * 扩展其他类型赋值 * 支持包装类型，如Integer、Short、Long、Float、Double、Boolean *
      * 日期类型支持，LocalDate、LocalDateTime、LocalTime 不支持Date类型 *
      * 不支持基本数据类型如int、shot、long、byte、double、float * @param object * @param field * @param value *
+     *
      * @throws IllegalAccessException
      */
     private static void setFieldValue(Object object, Field field, Object value, EsItemField esItemField) {
@@ -303,11 +358,11 @@ public class MetricsAnnotationParseUtil {
             String locale = esItemField.locale();
             String timezone = esItemField.timezone();
             ZoneId curZone = OffsetDateTime.now().getOffset();
-            if(!StringUtils.isEmpty(locale)){
+            if (!StringUtils.isEmpty(locale)) {
                 curZone = ZoneId.of(locale);
             }
             ZoneId newZone = OffsetDateTime.now().getOffset();
-            if(!StringUtils.isEmpty(timezone)){
+            if (!StringUtils.isEmpty(timezone)) {
                 newZone = ZoneId.of(timezone);
             }
             if (type.equals(LocalDateTime.class) || type.equals(String.class)) {
@@ -329,9 +384,9 @@ public class MetricsAnnotationParseUtil {
                 LocalDate parse = LocalDate.parse(value.toString(),
                         DateTimeFormatter.ofPattern(pattern));
                 value = parse.atStartOfDay(curZone).withZoneSameInstant(newZone).toLocalDate();
-            } else  if (type.equals(LocalTime.class)) {
+            } else if (type.equals(LocalTime.class)) {
                 //LocalTime 没有时区概念，不处理
-                value = LocalTime.parse(value.toString(),DateTimeFormatter.ofPattern(pattern));
+                value = LocalTime.parse(value.toString(), DateTimeFormatter.ofPattern(pattern));
             }
             try {
                 field.set(object, value);
@@ -351,7 +406,7 @@ public class MetricsAnnotationParseUtil {
                 return;
             }
             //其他类型均转换value为String类型
-            Object o = getObjectField(field, value+"");
+            Object o = getObjectField(field, value + "");
             field.set(object, o);
         } catch (Exception e) {
             log.error("can not set field [{}] value [{}],exception message={}", field.getName(), value, e.getMessage());
