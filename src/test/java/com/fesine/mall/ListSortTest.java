@@ -1,7 +1,7 @@
 package com.fesine.mall;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @description: 类描述
@@ -25,11 +25,16 @@ public class ListSortTest {
         //list.sort((o1, o2) -> o1.length() <= o2.length() ? 0 : -1);
         //for (String s : list) {
         //    System.out.println(s);
-        //}
-        String str = "风险门户系统|LU26|LV81|LZ08";
-        String[] arr = str.split("\\|");
-        List<String> list = Arrays.asList(arr);
-        boolean lu26 = list.contains("LU26");
-        System.out.println(lu26);
+//        //}
+//        String str = "风险门户系统|LU26|LV81|LZ08";
+//        String[] arr = str.split("\\|");
+//        List<String> list = Arrays.asList(arr);
+//        boolean lu26 = list.contains("LU26");
+//        System.out.println(lu26);
+        Set<String> stringSet = new HashSet<>();
+        stringSet.add("a");
+        stringSet.add("b");
+        stringSet.add("a");
+        System.out.println();
     }
 }

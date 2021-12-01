@@ -2,12 +2,14 @@ package com.fesine.mall.controller;
 
 import com.fesine.mall.annotation.ServiceGroup;
 import com.fesine.mall.aop.Auth;
+import com.fesine.mall.config.EsMultiServiceManager;
 import com.fesine.mall.service.ICartService;
 import com.fesine.mall.service.IEsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -42,6 +44,10 @@ public class BeanTestController {
     @Autowired
     private ICartService cartService;
 
+    @Resource
+    private EsMultiServiceManager serviceManager;
+
+
 
     @ApiOperation(value = "iis正常，field注解", tags = "bean测试")
     @GetMapping("/iis")
@@ -53,5 +59,11 @@ public class BeanTestController {
     @GetMapping("/jwlog")
     public String jwlog(){
         return jwlogService.getMetrics();
+    }
+
+    @ApiOperation(value = "传入group，调用服务", tags = "bean测试")
+    @GetMapping("/group/{group}")
+    public String getByGroup(@PathVariable String group){
+        return serviceManager.getService(group).getMetrics();
     }
 }
