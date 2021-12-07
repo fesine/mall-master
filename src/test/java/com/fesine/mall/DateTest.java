@@ -1,6 +1,8 @@
 package com.fesine.mall;
 
+import com.fesine.mall.pojo.Cart;
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 
 /**
  * @description: 类描述
@@ -13,6 +15,11 @@ import org.joda.time.DateTime;
 public class DateTest {
 
     public static void main(String[] args) {
+        Cart cart = new Cart();
+        Cart cart1 = new Cart();
+        cart.setProductId(1);
+        cart1.setQuantity(2);
+        BeanUtils.copyProperties(cart1, cart);
         String instant = "2021-01-01";
         testQuarterMonth(instant, "/");
         //test(instant);
