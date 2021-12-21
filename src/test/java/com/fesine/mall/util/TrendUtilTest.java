@@ -36,7 +36,7 @@ public class TrendUtilTest {
         map.put("202106", initCustTrendResp());
         map.put("202103", initCustTrendResp());
         map.put("202101", initCustTrendResp());
-        Map<Object, List> trendMap = TrendUtil.fillMonthTrendMap("month", 11, today,
+        Map<Object, List> trendMap = TrendUtil.convertTrendMap("month", 11, today,
                 map, resp, new MonthTrendStrategy());
         System.out.println(JSON.toJSONString(trendMap));
     }

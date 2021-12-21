@@ -32,7 +32,7 @@ public class TrendUtil {
      * @param strategy          区间处理策略
      * @return
      */
-    public static <T extends Object> Map<Object, List> fillMonthTrendMap(String trendKey, Integer trendNum, Object trendObject,  Map<Object, T> tempMap, T defaultValue, TrendStrategy strategy) throws Exception {
+    public static <T> Map<Object, List> convertTrendMap(String trendKey, Integer trendNum, Object trendObject, Map<Object, T> tempMap, T defaultValue, TrendStrategy strategy) throws Exception {
         Class<?> clazz = defaultValue.getClass();
         //获取trendKey，校验trendKey属性是否存在
         clazz.getDeclaredField(trendKey);
