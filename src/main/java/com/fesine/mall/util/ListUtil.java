@@ -1,6 +1,7 @@
 package com.fesine.mall.util;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -102,15 +103,6 @@ public class ListUtil {
             result.add(o);
             return result;
         }
-        //遍历处理
-//        for (int i = 0; i < fieldList.size(); i++) {
-//            T o = (T) t.getClass().newInstance();
-//            BeanUtils.copyProperties(t, o);
-//            List subList = (List) getFieldValue(m, fieldList.get(i));
-//            for (Object sub : subList) {
-//                result.addAll(dp(o, sub));
-//            }
-//        }
         result.addAll(_dp(t, m, m, 0, fieldList));
         return result;
     }
@@ -131,7 +123,7 @@ public class ListUtil {
         List<Field> fieldList = getAllField(cur.getClass(), List.class);
         //忽略为空的数据
         Iterator<Field> iterator = fieldList.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             Field next = iterator.next();
             Object value = getFieldValue(cur, next);
             if (value == null) {
@@ -234,6 +226,67 @@ public class ListUtil {
             }
         }
 
+        return result;
+    }
+
+    public static <T, M> List<T> dp2(T t, M m) throws Exception {
+        List<T> result = new ArrayList<>();
+        //为空直接返回
+        if (m == null) {
+            return result;
+        }
+        //复制当前m对象的普通属性给t
+        BeanUtils.copyProperties(m, t);
+        result.add(t);
+        //获取m对象所有的为List的属性列表
+        List<Field> fieldList = getAllField(m.getClass(), List.class);
+
+        //当没有list属性时，说明已经递归到底了。
+        if (fieldList.size() == 0) {
+            return result;
+        }
+        return _dp2(result, m, fieldList,new ArrayList<>());
+    }
+
+    private static <T, M> List<T> _dp2(List<T> result, M m, List<Field> fieldList,List<T> allList) throws Exception {
+        //忽略为空数据的属性
+        Iterator<Field> iterator = fieldList.iterator();
+        while (iterator.hasNext()) {
+            Field next = iterator.next();
+            Object value = getFieldValue(m, next);
+            if (value == null) {
+                iterator.remove();
+            }
+        }
+        if (CollectionUtils.isEmpty(fieldList)) {
+
+            return result;
+        }
+
+        for (int i = 0; i < fieldList.size(); i++) {
+            List subList = (List) getFieldValue(m, fieldList.get(i));
+            //为空当前属性不处理
+            if (CollectionUtils.isEmpty(subList)) {
+                continue;
+            }
+            //复制当层属性
+            List<T> list = new ArrayList<>();
+            for (int j = 0; j < result.size(); j++) {
+                for (int k = 0; k < subList.size(); k++) {
+                    T t = (T) result.get(j).getClass().newInstance();
+                    BeanUtils.copyProperties(result.get(j), t);
+                    Object subM = subList.get(k);
+                    BeanUtils.copyProperties(subM, t);
+                    list.add(t);
+                }
+                //递归下一层
+                for (int k = 0; k < subList.size(); k++) {
+                    Object subM = subList.get(k);
+                    allList = _dp2(list, subM, getAllField(subM.getClass(), List.class),allList);
+                }
+            }
+            result = allList;
+        }
         return result;
     }
 

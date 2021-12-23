@@ -8,6 +8,7 @@ import com.fesine.mall.util.list.Sub1Sub1Dto;
 import com.fesine.mall.util.list.Sub1Sub2Dto;
 import com.fesine.mall.util.list.Sub2Dto;
 import com.fesine.mall.util.list.Sub2Sub1Dto;
+import com.fesine.mall.util.list.Sub2Sub2Dto;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
@@ -63,9 +64,17 @@ public class ListUtilTest {
         List<Sub2Sub1Dto> sub2Sub1DtoList = new ArrayList<>();
         sub2Sub1DtoList.add(s2s1_1);
         sub2Sub1DtoList.add(s2s1_2);
+        Sub2Sub2Dto s2s2_1 = new Sub2Sub2Dto();
+        s2s2_1.setSub2Sub2Id("s2s2_1");
+        Sub2Sub2Dto s2s2_2 = new Sub2Sub2Dto();
+        s2s2_2.setSub2Sub2Id("s2s2_2");
+        List<Sub2Sub2Dto> sub2Sub2DtoList = new ArrayList<>();
+        sub2Sub2DtoList.add(s2s2_1);
+        sub2Sub2DtoList.add(s2s2_2);
         Sub2Dto s2_1 = new Sub2Dto();
         s2_1.setS2Id("s2_1");
         s2_1.setSub2Sub1DtoList(sub2Sub1DtoList);
+        s2_1.setSub2Sub2DtoList(sub2Sub2DtoList);
         List<Sub2Dto> sub2DtoList = new ArrayList<>();
         sub2DtoList.add(s2_1);
         ParentDto parentDto = new ParentDto();
@@ -74,7 +83,8 @@ public class ListUtilTest {
         parentDto.setSub2DtoList(sub2DtoList);
         System.out.println(JSON.toJSONString(parentDto));
         try {
-            List<AllDto> merge = ListUtil.dp(new AllDto(), parentDto);
+            List<AllDto> merge = ListUtil.dp2(new AllDto(), parentDto);
+            System.out.println();
             System.out.println(JSON.toJSONString(merge));
         } catch (Exception e) {
             e.printStackTrace();
