@@ -17,6 +17,7 @@ public class AllDto {
     private String s2Id;
     private String sub1Sub1Id;
     private String sub1Sub2Id;
+    private String sub1Sub2Sub1Id;
     private String sub2Sub1Id;
     private String sub2Sub2Id;
 }

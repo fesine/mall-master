@@ -2,8 +2,6 @@ package com.fesine.mall.util.list;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @description: 类描述
  * @author: fesine
@@ -13,9 +11,7 @@ import java.util.List;
  * @updateTime:2021/12/19
  */
 @Data
-public class Sub1Sub2Dto {
+public class Sub1Sub2Sub1Dto {
 
-    private String sub1Sub2Id;
-
-    private List<Sub1Sub2Sub1Dto> sub1Sub2Sub1DtoList;
+    private String sub1Sub2Sub1Id;
 }
