@@ -9,13 +9,23 @@ import com.fesine.mall.annotation.entity.MetricsDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
-import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @description: 处理注解工具类
@@ -283,10 +293,11 @@ public class MetricsAnnotationParseUtil {
             ItemDTO itemDTO;
             if (field.getAnnotation(EsItemField.class) != null
                     && field.getAnnotation(EsItemField.class).instance()) {
-                PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(),
-                        t.getClass());
-                Method readMethod = descriptor.getReadMethod();
-                itemDTO = (ItemDTO) readMethod.invoke(t);
+//                PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(),
+//                        t.getClass());
+//                Method readMethod = descriptor.getReadMethod();
+//                itemDTO = (ItemDTO) readMethod.invoke(t);
+                itemDTO = (ItemDTO) field.get(t);
             } else {
                 itemDTO = (ItemDTO) field.getType().newInstance();
             }

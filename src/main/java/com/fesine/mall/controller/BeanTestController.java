@@ -2,6 +2,7 @@ package com.fesine.mall.controller;
 
 import com.fesine.mall.annotation.ServiceGroup;
 import com.fesine.mall.aop.Auth;
+import com.fesine.mall.as.AbstractService;
 import com.fesine.mall.config.EsMultiServiceManager;
 import com.fesine.mall.service.ICartService;
 import com.fesine.mall.service.IEsService;
@@ -47,7 +48,21 @@ public class BeanTestController {
     @Resource
     private EsMultiServiceManager serviceManager;
 
+    @Resource(name = "cclService")
+    private AbstractService cclService;
 
+    @Resource(name = "capService")
+    private AbstractService capService;
+
+
+
+    @ApiOperation(value = "测试抽象类注入属性", tags = "bean测试")
+    @GetMapping("/abs")
+    public String abs() throws Exception {
+        cclService.invoke();
+        capService.invoke();
+        return iisService.getMetrics();
+    }
 
     @ApiOperation(value = "iis正常，field注解", tags = "bean测试")
     @GetMapping("/iis")

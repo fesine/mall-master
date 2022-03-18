@@ -10,6 +10,10 @@ import com.fesine.mall.util.list.Sub1Sub2Sub1Dto;
 import com.fesine.mall.util.list.Sub2Dto;
 import com.fesine.mall.util.list.Sub2Sub1Dto;
 import com.fesine.mall.util.list.Sub2Sub2Dto;
+import com.fesine.mall.util.list.lon.CustInfo;
+import com.fesine.mall.util.list.lon.RiskFlatInfo;
+import com.fesine.mall.util.list.lon.RiskInfo;
+import com.fesine.mall.util.list.lon.SignalInfo;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
@@ -28,6 +32,28 @@ import java.util.stream.Collectors;
  * @updateTime:2021/12/19
  */
 public class ListUtilTest {
+
+    @Test
+    public void testRisk() throws Exception {
+        SignalInfo s1 = new SignalInfo("Y",394);
+        SignalInfo s11 = new SignalInfo("N",98);
+        List<SignalInfo> sList1 = new ArrayList<>();
+        sList1.add(s1);
+        sList1.add(s11);
+        CustInfo c1 = new CustInfo("Z", 140, sList1);
+        SignalInfo s2 = new SignalInfo("N",263);
+        List<SignalInfo> sList2 = new ArrayList<>();
+        sList2.add(s2);
+        CustInfo c2 = new CustInfo("E", 63, sList2);
+        List<CustInfo> cList = new ArrayList<>();
+        cList.add(c1);
+        cList.add(c2);
+        RiskInfo riskInfo = new RiskInfo("借款人", cList);
+        System.out.println(JSON.toJSONString(riskInfo));
+        List<RiskFlatInfo> merge = ListUtil.dp2(new RiskFlatInfo(), riskInfo);
+        System.out.println();
+        System.out.println(JSON.toJSONString(merge));
+    }
 
     @Test
     public void test(){

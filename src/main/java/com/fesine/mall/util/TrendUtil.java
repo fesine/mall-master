@@ -2,9 +2,7 @@ package com.fesine.mall.util;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,12 +50,12 @@ public class TrendUtil {
             tempMap.putIfAbsent(key, defaultValue);
             for (Field field : fields) {
                 T t1 = tempMap.get(key);
-                PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), clazz);
-                Method readMethod = descriptor.getReadMethod();
+//                PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), clazz);
+//                Method readMethod = descriptor.getReadMethod();
                 if (field.getName().equals(trendKey)) {
                     map.get(trendKey).add(key);
                 } else {
-                    map.get(field.getName()).add(readMethod.invoke(t1));
+                    map.get(field.getName()).add(field.get(t1));
                 }
             }
         }

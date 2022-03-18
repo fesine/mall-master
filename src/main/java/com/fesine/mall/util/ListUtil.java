@@ -285,7 +285,8 @@ public class ListUtil {
                     allList = _dp2(list, subM, getAllField(subM.getClass(), List.class),allList);
                 }
             }
-            result = allList;
+//            result=allList;
+            result.addAll(allList);
         }
         return result;
     }
@@ -294,8 +295,9 @@ public class ListUtil {
         PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(),
                 m.getClass());
         Method readMethod = descriptor.getReadMethod();
-        //取出数据列表
+//        取出数据列表
         return readMethod.invoke(m);
+//        return field.get(m);
     }
 
 

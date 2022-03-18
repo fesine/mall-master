@@ -41,3 +41,58 @@ es:
       username: jwlog
       password: admin123
 
+pdf:
+  pdfConfigMap:
+    ccl:
+      statics:
+        use-temp: true
+        template:
+          dir: pdf/templates/html
+          name: ccl_template_freemarker.html
+          email-name: ccl_template_email.html
+        echarts:
+          dir: pdf/templates/echarts
+        font:
+          dir: D:/jar/temp/pdf/fonts
+        image:
+          dir: pdf/img
+        js:
+          dir: pdf/js
+          name: phantomjs.js
+        tmp:
+          dir: ${user.dir}/temp
+      server:
+        template: http://localhost:${server.port}${server.servlet.context-path:/}pdf/static/ccl_template_freemarker.html
+        phantomjs: http://localhost:8002
+      ecs:
+        sys-code: ICIF
+        module-code: CCL
+        date-formatter: yyyyMM
+        name-pattern: ccl_report_%s.pdf
+    cap:
+      statics:
+        use-temp: true
+        template:
+          dir: pdf/templates/html
+          name: cap_template_freemarker.html
+          email-name: cap_template_email.html
+        echarts:
+          dir: pdf/templates/echarts
+        font:
+          dir: D:/jar/temp/pdf/fonts
+        image:
+          dir: pdf/img
+        js:
+          dir: pdf/js
+          name: phantomjs.js
+        tmp:
+          dir: ${user.dir}/temp
+      server:
+        template: http://localhost:${server.port}${server.servlet.context-path:/}pdf/static/${template.name}
+        phantomjs: http://localhost:8002
+      ecs:
+        sys-code: ICIF
+        module-code: cap
+        date-formatter: yyyyMM
+        name-pattern: cap_report_%s.pdf
+
