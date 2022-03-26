@@ -84,13 +84,13 @@ public class PrometheusTest {
 
         groupingKey.put("instance", "iis_instance");
         for (int i = 0; i < 100; i++) {
-            String date = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss").format(new Date());
+            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
-            guage.labels("LU36", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.227." + i, date).set(i);
+            guage.labels("LU36", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0." + i, date).set(i);
 
-//                guage.labels("LU14", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.229.148", date).set(200);
-//                guage.labels("LU14", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.229.45", date).set(404);
-//                guage.labels("LU14", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.229.12", date).set(201);
+//                guage.labels("LU14", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0.148", date).set(200);
+//                guage.labels("LU14", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0.45", date).set(404);
+//                guage.labels("LU14", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0.12", date).set(201);
 //            guage.labels("my-pushgateway-test-1", date).dec();
 //            guage.labels("my-pushgateway-test-2", date).dec(2);
 //            guage.labels("my-pushgateway-test-3", date).inc();
@@ -110,11 +110,11 @@ public class PrometheusTest {
         for (int i = 0; i < 100; i++) {
             String date = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss").format(new Date());
 
-            guage.labels("LU37", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.228." + i, date).set(i);
+            guage.labels("LU37", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "99.15.228." + i, date).set(i);
 
-//                guage.labels("LU14", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.229.148", date).set(200);
-//                guage.labels("LU14", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.229.45", date).set(404);
-//                guage.labels("LU14", "批发应用风险管理系统", "/CVM/", "批发应用风险管理系统", "99.12.74.144", "/CVM/LineMgmt/CreditLineStsMgmt.aspx", "99.15.229.12", date).set(201);
+//                guage.labels("LU14", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0.148", date).set(200);
+//                guage.labels("LU14", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0.45", date).set(404);
+//                guage.labels("LU14", "测试系统", "/aaa/", "测试系统", "127.0.0.1", "/aaa/test/test.aspx", "127.0.0.12", date).set(201);
 //            guage.labels("my-pushgateway-test-1", date).dec();
 //            guage.labels("my-pushgateway-test-2", date).dec(2);
 //            guage.labels("my-pushgateway-test-3", date).inc();
