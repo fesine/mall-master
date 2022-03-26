@@ -50,7 +50,7 @@ public class ListUtilTest {
         cList.add(c2);
         RiskInfo riskInfo = new RiskInfo("借款人", cList);
         System.out.println(JSON.toJSONString(riskInfo));
-        List<RiskFlatInfo> merge = ListUtil.dp2(new RiskFlatInfo(), riskInfo);
+        List<RiskFlatInfo> merge = ListUtil.dp(new RiskFlatInfo(), riskInfo);
         System.out.println();
         System.out.println(JSON.toJSONString(merge));
     }
