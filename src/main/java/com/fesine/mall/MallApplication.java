@@ -1,5 +1,6 @@
 package com.fesine.mall;
 
+import com.fesine.mall.annotation.EnableMyService;
 import com.fesine.mall.annotation.ScanPackage;
 import com.fesine.mall.config.EsClientConfig;
 import com.fesine.mall.config.EsClusterConfig;
@@ -29,6 +30,7 @@ import java.util.Map;
 @ScanPackage({"com.fesine.mall.service", "com.fesine.mall.controller"})
 @Configuration
 @EnableAspectJAutoProxy
+@EnableMyService(basePackages = {"com.fesine.mall"})
 public class MallApplication {
 
     @Autowired

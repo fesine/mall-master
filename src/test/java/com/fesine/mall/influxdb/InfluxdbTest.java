@@ -43,12 +43,14 @@ public class InfluxdbTest {
 //            labels.put("clientIp", String.format("127.0.%s.%s", new Random().nextInt(6) + "", new Random().nextInt(10) + ""));
             Point point = Point.measurement("status_client_metric")
                     .tag(labels)
-                    .addField("clientIp", String.format("127.0.%s.%s", new Random().nextInt(6) + "", new Random().nextInt(10) + ""))
+                    .addField("clientIp", String.format("127.0.%s.%s",
+                            new Random().nextInt(6) + "", new Random().nextInt(10) + ""))
                     .addField("value", i % 3 * 100 + 100)
                     .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS).build();
             Point point1 = Point.measurement("time_taken_client_metric")
                     .tag(labels)
-                    .addField("clientIp", String.format("127.0.%s.%s", new Random().nextInt(6) + "", new Random().nextInt(10) + ""))
+                    .addField("clientIp", String.format("127.0.%s.%s",
+                            new Random().nextInt(6) + "", new Random().nextInt(10) + ""))
                     .addField("value", i % 10 * 105 + new Random().nextInt(1000))
                     .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS).build();
             points.point(point);
